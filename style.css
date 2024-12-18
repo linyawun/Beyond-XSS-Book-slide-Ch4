@@ -21,6 +21,15 @@
 .slidev-page h4 {
   font-weight: 600;
 }
+.slidev-layout .quote{
+  @apply opacity-60 text-sm border-l-2 border-gray-500 pl-4
+  line-height: 1.25rem;
+  p {
+    margin-top: 0px;
+    margin-bottom: 0.1rem;
+    line-height: 1.25rem;
+  }
+}
 ul li {
   list-style-type: disc;
   ul li {

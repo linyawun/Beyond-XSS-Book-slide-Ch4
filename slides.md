@@ -182,32 +182,32 @@ layout: center
 
 ---
 
-# 補充：Domain(域名)的組成
+# 補充：Domain（域名）的組成
 
 domain 結構由右至左來看
 
-1. 根域 (Root Domain)
+1. 根域（Root Domain）
    - domain 最右端，隱式表示為 `.`
    - 如 `www.example.com.` 真正 domain 全稱是 `www.example.com.root`
-2. 頂級域 (Top-Level Domain, TLD)
-   - 位於根域左側，但通常根域隱藏，所以通常 TLD 是網址最後一部分
+2. 頂級域（Top-Level Domain, TLD）
+   - 位於根域左側，通常根域隱藏，因此通常 TLD 是網址最後一部分
    - 頂級網域可分為
      - 一般性頂級網域（general TLD, gTLD）：表示特定用途或類型，如 `.com`、`.net`
      - 國別頂級網域（country-code TLD, ccTLD）：表示特定國家或地區的域名，如 `.tw`、`.jp`
 
 ---
 
-# 補充：Domain(域名)的組成
+# 補充：Domain（域名）的組成
 
 domain 結構由右至左來看
 
 <div flex="~ gap-2" items-center >
 <div class='w-2/3'>
 
-3. 二級域名/次級域名 (Second-Level Domain, SLD)
+3. 二級域名/次級域名（Second-Level Domain, SLD）
    - 位於 TLD 左側，代表網站核心標識
    - 如 `example.com` 中的 `example` 是次級域名
-4. 子域 (Subdomain)
+4. 子域（Subdomain）
    - 位於次級域左側，由域名所有者自定義，用來劃分不同功能
    - 如 `www.example.com` 中的 `www` 是 subdomain
 
@@ -263,7 +263,7 @@ domain 結構由右至左來看
 
 # 細究 same origin
 
-<div class='opacity-60 text-sm'>
+<div class='quote'>
   <p>HTML <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin" target="_blank">spec</a>: "Origins are the fundamental currency of the web's security model. Two actors in the web platform that share an origin are assumed to trust each other and to have the same authority. Actors with differing origins are considered potentially hostile versus each other, and are isolated from each other to varying degrees."</p>
 </div>
 
@@ -277,14 +277,11 @@ domain 結構由右至左來看
       - port (null or a 16-bit unsigned integer)
       - domain (null or a domain). Null unless stated otherwise
     - tuple 型態如 `(https, huli.tw, null, null)`，可被序列化為字串 `https://huli.tw`
+      - 若 tuple 和序列化後字串傳達資訊類似，會以序列化後字串呈現
 
 <!-- 若兩網站有相同 origin，代表可信任彼此；反之會被隔離且受限制 -->
 
-<style>
-  .slidev-layout p{ 
-    line-height: 1.25rem;
-  }
-</style>
+
 
 ---
 
@@ -294,7 +291,7 @@ domain 結構由右至左來看
   - same origin
   - same origin-domain
 - 判斷 A 與 B origin 是否為 same origin 的演算法
-  <div class='opacity-60 text-sm '>
+  <div class='quote'>
     <p> Two origins, A and B, are said to be same origin if the following algorithm returns true: </p>
     <p> 1. If A and B are the same opaque origin, then return true. </p>
     <p> 2. If A and B are both tuple origins and their schemes, hosts, and port are identical, then return true. </p>
@@ -302,22 +299,319 @@ domain 結構由右至左來看
   </div>
 
   - 兩種情況會是 same origin
-    - 兩個都是 opaque origin
-    - 兩個都是 tuple origin，且 scheme、host、port 都相等
+    - 都是 opaque origin
+    - 都是 tuple origin，且 scheme、host、port 都相等
 
-<style>
-  .slidev-layout p{ 
-    margin-top: 0px;
-    margin-bottom: 0.1rem;
-    line-height: 1.25rem;
-  }
-</style>
 
 ---
 
 # 細究 same origin
 
 - same origin 舉例
+  - `https://huli.tw/api` origin 是 `https://huli.tw`
+    - `https://huli.tw/*` 才會和它 same origin
+  - `https://blog.huli.tw` origin 是 `https://blog.huli.tw`
+    - 和 `https://huli.tw` host 不同，不是 same origin
+- same domain 在規範的定義和前面簡單版解釋差在哪？
+  - origin 定義
+    - 多了 opaque origin 這種 origin
+    - tuple origin 多了 domain 元素
+  - same origin
+    - 多了 same origin-domain
+
+
+---
+
+# 細究 same site
+
+<div class='quote'>
+  <p>HTML <a href="https://html.spec.whatwg.org/multipage/browsers.html#sites" target="_blank">spec</a>: "A site is an opaque origin or a scheme-and-host."</p>
+</div>
+
+- site 分兩種
+  - opaque origin
+  - scheme-and-host
+- 依 spec，提到 same site，可分兩種
+  - same site: 會看 scheme
+  - schemelessly same site: 不看 scheme
+
+---
+
+# 細究 same site
+
+- 判斷 A 與 B origin 是否為 same site<span class='text-#2f96ad text-xs ml-2'><Link to='additionalInfo' class='border-none!'>\[1\]</Link></span>
+  <div class='quote'>
+    <p> Two origins, A and B, are said to be same site if both of the following statements are true: </p>
+    <p> 1. A and B are schemelessly same site </p>
+    <p> 2. A and B are either both opaque origins, or both tuple origins with the same scheme </p>
+  </div> 
+
+  - 兩種情況會是 same site
+    - 都是 opaque origin
+    - 都是 schemelessly same site，且有相同 scheme
+
+
+---
+
+# 細究 same site
+
+- same site 定義的發展史
+  - same site 一開始不看 scheme：2016 <a href='https://datatracker.ietf.org/doc/html/draft-west-first-party-cookies-07#section-2.1' target='_blank'>RFC: Same-site Cookies</a> 中，same site 判斷不包含 scheme
+  - 2019 年 6 月開始<a href='https://github.com/w3c/webappsec-fetch-metadata/issues/34' target='_blank'>討論</a>是否將 scheme 納入考量
+  - 2019 年 9 月在此 <a href='https://github.com/whatwg/url/pull/449' target='_blank'>PR</a> 中，正式在規格中將 scheme 納入考量
+    - same site 定義為「會看 scheme」
+    - 不看 scheme 的稱為 schemelessly same site
+  - 2020 年 11 月 Chrome 的文章 <a href='https://web.dev/articles/schemeful-samesite' target='_blank'>Schemeful Same-Site</a> 顯示瀏覽器當時仍把不同 scheme 視為 same site
+  - 2020 年，Firefox issue <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=1651119' target='_blank'>[meta] Enable cookie sameSite schemeful</a> 的 open 狀態顯示預設還沒把 scheme 納入 same site 考量
+  - 2021 年 3 月 Chrome 發布 Chrome 89，將 <a href='https://chromestatus.com/feature/5096179480133632' target='_blank'>scheme 列入 same site 判斷</a>
+
+---
+
+# 細究 same site
+
+- 判斷 A 與 B origin 是否為 schemelessly same site
+  <div class='quote'>
+    <p> Two origins, A and B, are said to be schemelessly same site if the following algorithm returns true: </p>
+    <p> 1. If A and B are the same opaque origin, then return true. </p>
+    <p> 2. If A and B are both tuple origins, then: </p>
+    <p class='ml-4'>1. Let hostA be A's host, and let hostB be B's host. </p>
+    <p class='ml-4'>2. If hostA equals hostB and hostA's registrable domain is null, then return true. </p>
+    <p class='ml-4'>3. If hostA's registrable domain equals hostB's registrable domain and is non-null, then return true. </p>
+    <p>3. Return false.</p>
+  </div> 
+
+  - 兩種情況會是 schemelessly same site
+    - 都是 opaque origin
+    - 都是 tuple origin，且 host 相同
+      - 判斷 host 是否相同，會看 registrable domain 
+
+---
+
+# 細究 same site
+之 registrable domain 是什麼
+
+- registrable domain 定義
+<div class='quote'>
+  <p>URL <a href="https://url.spec.whatwg.org/#host-registrable-domain" target="_blank">spec</a>: "A host’s registrable domain is a domain formed by the most specific public suffix, along with the domain label immediately preceding it, if any"<span class='text-#2f96ad text-xs ml-2'><Link to='additionalInfo' class='border-none!'>[2]</Link></span></p> 
+</div>
+
+  - registrable domain 舉例
+
+    | Host                | Registrable Domain |
+    |----------------------|---------------------|
+    | `blog.huli.tw`      | `huli.tw`            |
+    | `huli.tw`           | `huli.tw`            |
+    | `bob.github.io`    | `bob.github.io`      |
+
+--- 
+
+# 細究 same site
+之 registrable domain 是什麼
+
+- 為何有的 registrable domain 是 `xxx.xxx.xx`、有的是 `xxx.xx` ?
+  - 如果沒有「registrable domain」和「public suffix」…
+    - `huli.tw` 跟 `blog.huli.tw` 被視為 same site ✅
+    - `bob.github.io` 跟 `alice.github.io` 被視為 same site 🔺
+      - `github.io` 是 GitHub pages 服務，每個 GitHub 使用者都有自己專屬的 subdomain
+      - `bob.github.io` 和 `alice.github.io` 屬於不同使用者，希望能被視為兩個獨立網站
+        - -> 「public suffix」 讓他們可被視為獨立網站
+
+
+--- 
+
+# 細究 same site
+之 registrable domain 是什麼
+
+- public suffix：一個人工維護的<a href='https://publicsuffix.org/list/public_suffix_list.dat' target='_blank'>清單</a>，有「不想被當作是同個網站的列表」
+  - public suffix 如：`github.io`、`com.tw`、`s3.amazonaws.com`、`herokuapp.com`
+  - public suffix 也稱為 eTLD（effective Top-Level-Domain）<span class='text-sm opacity-80'>(<a href='https://blog.kalan.dev/2021-11-09-url-and-samesite' target='_blank'>ref</a>)</span>
+- 瀏覽器參考 public suffix 後，才決定 registrable domain 是什麼
+  - registrable domain 不同，依 spec 定義，不是 same site 
+    | Host                | Public Suffix | Registrable Domain |
+    |----------------------|---------------------|---------------------|
+    | `bob.github.io`    | `github.io`            | `github.io`      |
+    | `alice.github.io`  | `github.io`            | `github.io`      |
+
+
+--- 
+
+# 細究 same site
+之 registrable domain 是什麼
+
+- registrable domain 與 public suffix <a href='https://url.spec.whatwg.org/#host-registrable-domain' target='_blank'>舉例表格</a>
+  <img src='/images/registrable-domain-and-public-suffix-example.png' alt='registrable domain 與 public suffix 舉例表格' class='w-[650px]' />
+
+
+--- 
+
+# 細究 same site
+之 registrable domain 是什麼
+
+- 補充：找出 registrable domain 與 public suffix 的簡化版步驟 <span class='text-sm opacity-80'>(<a href='https://www.michalspacek.com/origin-site-etld-etld-plus-one-public-suffix-psl-what-are-they' target='_blank'>ref</a>)</span> 
+  - Step 1. 從 URL 的尾端開始，尋找最長的匹配 public suffix
+    - e.g. `whatwg.github.io`匹配的 public suffix 是 `github.io` 
+  - Step 2. 加上 public suffix 左側的一段字串，形成 registrable domain
+    - 以找到的 public suffix，將它的左側一個 domain label 加入，構成 registrable domain
+      - 結構類似：`xxx.${publicSuffix}`
+     - registrable domain 又稱 eTLD+1，因為是 eTLD (也就是 public suffix) 加上一個二級域名 label
+     - e.g.  `whatwg.github.io` 中，`github.io` 左側是 `whatwg`，registrable domain 是 `whatwg.github.io`
+  - 特殊情況：若 public suffix 等於整個 host，則沒有左側 label，registrable domain 為 null
+
+
+--- 
+
+# 細究 same site
+再回到 same site
+
+- same site 在規範的定義和前面簡單版解釋差在哪？
+  - host 看起來像在同 parent domain，不代表是 same site
+    - 比較兩個 host 是否 same site，要看 registrable domain，而 registrable domain 要看 public suffix
+    - 舉例
+      - `bob.github.io` 和 `alice.github.io` 的 registrable domain 不同，不是 same site 
+      - `blog.huli.tw`、`huli.tw` 和 `test.huli.tw` 的 registrable domain 相同，是 same site
+
+
+---
+
+# Same origin 與 same site
+
+- same origin 會看：scheme、port、host
+- same site 會看：scheme、host（registrable domain）
+- 兩網站是 same origin，則一定是 same site
+  (待補圖)
+- same origin 與 same site 的差別
+    | 差異項目        | Same Origin                         | Same Site                            |
+    |-----------------|-------------------------------------|---------------------------------------|
+    | 是否考慮 port   | 是                                  | 否                                   |
+    | 是否考慮 host   | 是                                  | 不完全是（只看 registrable domain）       |
+
+---
+
+# 神奇的 document.domain
+
+- origin spec 中還有東西還沒提到
+  - tuple origin 定義包含的 domain 屬性
+  - same origin-domain
+- tuple origin 定義包含的 domain 屬性
+  <div class='quote'>
+    <p>HTML <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin" target="_blank">spec</a>: "Origins can be shared, e.g., among multiple Document objects. Furthermore, origins are generally immutable. Only the domain of a tuple origin can be changed, and only through the document.domain API."</p> 
+  </div>
+
+  - origin 除 domain 屬性外，其他都不可變(immutable)
+    - domain 屬性可用 `document.domain` 改變
+---
+
+# 神奇的 document.domain
+
+- `document.domain` demo
+   - Step 1. 修改本機 `/etc/hosts`，讓兩個網址都連到 localhost
+     ```
+     127.0.0.1   alice.example.com
+     127.0.0.1   bob.example.com
+     ```
+  - Step 2. 寫個 server 在 `localhost:5555` 運行
+    - 頁面功能：載入 iframe、讀取 iframe 內 DOM 資料、改變 `document.domain`
+
+
+
+<div class="ml-12">
+```html {*}{maxHeight:'100px'}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content ="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <h1></h1>
+    <h2></h2>
+    <button onclick="load('alice')">load alice iframe</button>
+    <button onclick="load('bob')">load bob iframe</button>
+    <button onclick="access()">access iframe content</button>
+    <button onclick="update()">update domain</button>
+    <br>
+    <br>
+  </body>
+  <script>
+    const name = document.domain.replace('.example.com', '')
+    document.querySelector('h1').innerText = name
+    document.querySelector('h2').innerText = Math.random()
+
+    function load(name) {
+      const iframe = document.createElement('iframe')
+      iframe.src = 'http://' + name + '.example.com:5555'
+      document.body.appendChild(iframe)
+    }
+
+    function access() {
+      const win = document.querySelector('iframe').contentWindow
+      alert('secret:' + win.document.querySelector('h2').innerText)    
+    }
+
+    function update() {
+      document.domain = 'example.com'
+    }
+  </script>
+</html>
+```
+</div>
+
+---
+
+# 神奇的 document.domain
+
+- `document.domain` demo
+  - Step 3. 開啟 `http://alice.example.com:5555`，點「load bob iframe」載入 `http://bob.example.com:5555` iframe，再按 alice 頁面的 「access iframe content」
+    （待補圖）
+    - 錯誤原因：要跨越 iframe 存取 DOM，必須是 same origin
+  - Step 4. 按下 alice 和 bob 頁面的「update domain」，之後再按 alice 頁面的「access iframe content」
+    （待補圖）
+    - 將 `http://alice.example.com:5555` 跟 `http://bob.example.com:5555` 從 cross origin 變成 same origin
+    - 成功取得 bob 頁面資料 <br>
+    -> same site 變成 same origin
+
+
+---
+
+# 神奇的 document.domain
+
+- cross origin 變成 same origin 有很多限制
+  - 只有 same site 網站可以
+  - 設置時會檢查
+    <div class='quote'>
+      <p>The domain setter steps are:</p> 
+      <p>1. If this's browsing context is null, then throw a "SecurityError" DOMException.</p>
+      <p>2. If this's active sandboxing flag set has its sandboxed document.domain browsing context flag set, then throw a "SecurityError" DOMException.</p>
+      <p>3. Let effectiveDomain be this's origin's effective domain.</p>
+      <p>4. If effectiveDomain is null, then throw a "SecurityError" DOMException.</p>
+      <p>5. If the given value is not a registrable domain suffix of and is not equal to effectiveDomain, then throw a "SecurityError" DOMException.</p>
+      <p>6. If the surrounding agent's agent cluster's is origin-keyed is true, then return.</p>
+      <p>7. Set this's origin's domain to the result of parsing the given value.</p>
+    </div>
+  - 如：`alice.github.io` 執行 `document.domain = 'github.io'` 會出錯：「Uncaught DOMException: Failed to set the 'domain' property on 'Document': 'github.io' is a top-level domain.」
+    - 原因：不符合步驟 5 registrable domain suffix 的檢查
+
+---
+
+# 神奇的 document.domain
+
+- 兩頁面改 `document.domain` 後，變成 same origin 的原因
+  - 嚴格來說改 `document.domain` 是讓兩網站變成 same origin-domain
+  - 某些檢查看 same origin-domain，而非 same origin <span class='text-sm opacity-80'>(<a href='https://html.spec.whatwg.org/multipage/document-sequences.html#concept-bcc-content-document' target='_blank'>ref</a>)</span> 
+    <div class='quote'>
+      🖊️ 不確定是不是這段
+      <p>If document's origin and container's node document's origin are not same origin-domain, then return null.</p> 
+    </div>
+
+    - 如果 document 和裡面的 node document（iframe）不是 same origin-domain，就回傳 null
+    - 如果是 same origin-domain，就可存取到 iframe
+- 判斷 A 與 B origin 是否為 same origin-domain<span class='text-#2f96ad text-xs ml-2'><Link to='additionalInfo' class='border-none!'>\[3\]</Link></span>
+  <div class='quote'>
+    <p>1. If A and B are the same opaque origin, then return true.</p> 
+    <p>2. If A and B are both tuple origins:</p> 
+  </div>
+
+
 
 ---
 
@@ -886,11 +1180,18 @@ console.log(
   )
 );
 ```
-
 ---
 
-layout: center
-class: text-center
+```yaml
+routeAlias: additionalInfo
+```
+# 補充
+
+- \[1\]：2024/12 的 <a href='https://html.spec.whatwg.org/multipage/browsers.html#sites' target='_blank'>spec</a> 中，same site 演算法敘述有更改
+- \[2\]：2024/12 的 <a href='https://url.spec.whatwg.org/#host-registrable-domain' target='_blank'>spec</a> 中，registrable domain 敘述有更改
+- \[3\]：2024/12 的 <a href='https://html.spec.whatwg.org/multipage/browsers.html#origin' target='_blank'>spec</a> 中，same origin-domain 演算法有更改
+
+
 
 ---
 
