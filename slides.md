@@ -442,22 +442,6 @@ domain 結構由右至左來看
 
 # 細究 same site
 
-之 registrable domain 是什麼
-
-- 補充：找出 registrable domain 與 public suffix 的簡化版步驟 <span class='text-sm opacity-80'>(<a href='https://www.michalspacek.com/origin-site-etld-etld-plus-one-public-suffix-psl-what-are-they' target='_blank'>ref</a>)</span>
-  - Step 1. 從 URL 的尾端開始，尋找最長的匹配 public suffix
-    - e.g. `whatwg.github.io`匹配的 public suffix 是 `github.io`
-  - Step 2. 加上 public suffix 左側的一段字串，形成 registrable domain
-    - 以找到的 public suffix，將它的左側一個 domain label 加入，構成 registrable domain
-      - 結構類似：`xxx.${publicSuffix}`
-    - registrable domain 又稱 eTLD+1，因為是 eTLD (也就是 public suffix) 加上一個二級域名 label
-    - e.g. `whatwg.github.io` 中，`github.io` 左側是 `whatwg`，registrable domain 是 `whatwg.github.io`
-  - 特殊情況：若 public suffix 等於整個 host，則沒有左側 label，registrable domain 為 null
-
----
-
-# 細究 same site
-
 再回到 same site
 
 - same site 在規範的定義和前面簡單版解釋差在哪？
@@ -737,6 +721,82 @@ Ans：
 ---
 
 # 跨來源資源共用 CORS 基本介紹
+
+- 同源政策 same-origin policy：瀏覽器會阻止一個網站讀取另一個不同來源網站的資料
+- 開發常見問題：開發時前後端可能在不同 origin，前端如何讀到後端資料？
+  - 如：前端在 `huli.tw`、後端在 `api.huli.tw`
+  - 解法：CORS（Cross-Origin Resource Sharing），一種可跨來源交換網站資料的機制
+- 為什麼不能用 `XMLHttpRequest` 或 `fetch`（也可簡稱 AJAX）獲取跨來源資源？
+  - 以 `img` 或 `script` 請求跨來源資源不會遇到問題，但 AJAX 請求卻會被阻擋
+
+---
+
+# 為什麼不能跨來源呼叫 API？
+
+- 反向思考：如果跨來源請求不會被擋住，會發生什麼事？
+  - 🎉 自由串 API，不受任何阻擋
+    - 在自己網頁 `https://huli.tw/index.html` 用 AJAX 拿 `https://google.com` 資料
+  - ⛔ 問題舉例 1
+    - 情境：某公司內部網站 `http://internal.good-company.com` 只有公司員工電腦可連得到
+    - 問題：在自己網頁寫 AJAX 拿內部網站資料，拿到後再傳回自己 server，就可偷到機密資料
+    - 流程
+    (待補圖)
+  - ⛔ 問題舉例 2
+    - 情境：平常開發時會自己開 server 如 `http://localhost:3000` 
+    - 問題：若瀏覽器沒阻擋跨來源 API，攻擊者可拿到 localhost server 的資料
+      - 資料可能是：公司機密、可分析網站漏洞的資料
+
+---
+
+# 為什麼不能跨來源呼叫 API？
+
+- 反向思考：如果跨來源請求不會被擋住，會發生什麼事？
+  - ⛔ 問題舉例 3
+    - 情境：假設跨來源請求會自動附 cookie
+    - 問題：瀏覽惡意網站時，惡意網站可發 request 到 Facebook、Gmail，因為自動帶使用者 cookie，能拿到隱私資料
+
+
+---
+
+# 為什麼不能跨來源呼叫 API？
+
+- 為什麼要擋住跨來源 AJAX？
+  - 「安全性」
+  - 瀏覽器若要拿網站完整內容(可完整讀取)，只能用 `XMLHttpRequest` 或 `fetch`
+    - 若沒限制跨來源 AJAX，就能透過使用者瀏覽器拿「任意網站」內容
+- 為什麼不擋圖片、CSS 或 script？
+  - 屬於「網頁資源的一部分」，有其限制
+  - 資源限制
+    - 標籤只能拿特定類型資源
+    - 取得資源<span v-mark.red='1'>無法用程式讀取</span>
+      - -> 無法外傳
+
+---
+
+# 跨來源 AJAX 是怎麼被擋掉的？
+之隨堂小測驗
+
+- 情境：小明要用一個刪除文章 API
+  - 用法：`POST` 並帶文章 id，content type 是 `application/x-www-form-urlencoded`
+  - 限制：公司前後端網域不同，後端沒加 CORS header
+  - 小明呼叫刪除文章 API 後，console 跳錯：「request has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource」
+- 此說法正確嗎？
+  - 小明認為因同源政策，AJAX 發不出請求，文章刪不掉
+
+---
+
+# 跨來源 AJAX 是怎麼被擋掉的？
+
+- ⛔ 誤解：跨來源請求擋住的是 request
+  - 小明認為請求無法到伺服器，資料刪不掉 → 錯誤
+- 再看一次錯誤訊息
+  <div class='quote'>
+    <p>request has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource</p>
+  </div>
+  - 瀏覽器已發出 request、拿到 response 才發現沒有 'Access-Control-Allow-Origin' header
+
+
+
 
 ---
 
