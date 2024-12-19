@@ -739,22 +739,20 @@ Ans：
   - ⛔ 問題舉例 1
     - 情境：某公司內部網站 `http://internal.good-company.com` 只有公司員工電腦可連得到
     - 問題：在自己網頁寫 AJAX 拿內部網站資料，拿到後再傳回自己 server，就可偷到機密資料
-    - 流程
-    (待補圖)
-  - ⛔ 問題舉例 2
-    - 情境：平常開發時會自己開 server 如 `http://localhost:3000` 
-    - 問題：若瀏覽器沒阻擋跨來源 API，攻擊者可拿到 localhost server 的資料
-      - 資料可能是：公司機密、可分析網站漏洞的資料
+      <img src='/images/cross-origin-problem.png' alt='cors problem' class='w-[350px] mt-2' />
 
 ---
 
 # 為什麼不能跨來源呼叫 API？
 
 - 反向思考：如果跨來源請求不會被擋住，會發生什麼事？
+  - ⛔ 問題舉例 2
+    - 情境：平常開發時會自己開 server 如 `http://localhost:3000`
+    - 問題：若瀏覽器沒阻擋跨來源 API，攻擊者可拿到 localhost server 的資料
+      - 資料可能是：公司機密、可分析網站漏洞的資料
   - ⛔ 問題舉例 3
     - 情境：假設跨來源請求會自動附 cookie
     - 問題：瀏覽惡意網站時，惡意網站可發 request 到 Facebook、Gmail，因為自動帶使用者 cookie，能拿到隱私資料
-
 
 ---
 
@@ -763,7 +761,7 @@ Ans：
 - 為什麼要擋住跨來源 AJAX？
   - 「安全性」
   - 瀏覽器若要拿網站完整內容(可完整讀取)，只能用 `XMLHttpRequest` 或 `fetch`
-    - 若沒限制跨來源 AJAX，就能透過使用者瀏覽器拿「任意網站」內容
+    - 若沒限制跨來源 AJAX，就能透過使用者瀏覽器拿任意網站內容
 - 為什麼不擋圖片、CSS 或 script？
   - 屬於「網頁資源的一部分」，有其限制
   - 資源限制
@@ -774,6 +772,7 @@ Ans：
 ---
 
 # 跨來源 AJAX 是怎麼被擋掉的？
+
 之隨堂小測驗
 
 - 情境：小明要用一個刪除文章 API
@@ -787,16 +786,85 @@ Ans：
 
 # 跨來源 AJAX 是怎麼被擋掉的？
 
-- ⛔ 誤解：跨來源請求擋住的是 request
-  - 小明認為請求無法到伺服器，資料刪不掉 → 錯誤
+- 誤解：跨來源請求擋住的是 request
+  - ⛔ 小明認為請求無法到伺服器，資料刪不掉
 - 再看一次錯誤訊息
   <div class='quote'>
     <p>request has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource</p>
   </div>
-  - 瀏覽器已發出 request、拿到 response 才發現沒有 'Access-Control-Allow-Origin' header
+  瀏覽器已發出 request、拿到 response 才發現沒有 'Access-Control-Allow-Origin' header
+<br>
 
+#### 💡 瀏覽器擋住的不是 request，而是 response <span class='text-xs opacity-60'>(只適用於簡單請求)</span>
 
+- request 已到伺服器，瀏覽器也收到 response，只是瀏覽器不把結果給你
+- 小明的 request、文章 和 response?
+  - request：已經到 server
+  - 文章：已經被刪除
+  - response：瀏覽器拿到了，但它不給小明
 
+---
+
+# 如何設置 CORS?
+
+- 回傳 response 時，在 header 和瀏覽器說：「允許 XXX 存取這請求的 response」
+  - `*` 代表允許任何 origin 讀取這 response
+    ```
+    Access-Control-Allow-Origin: *
+    ```
+  - 限制單一來源存取
+    ```
+    Access-Control-Allow-Origin: https://blog.huli.tw
+    ```
+  - `Access-Control-Allow-Origin` 目前不支援多個 origin
+    - 只能依 request 動態設定不同 header
+
+---
+
+# 如何設置 CORS?
+
+- 跨來源請求分「簡單請求」跟「非簡單請求」 <span class='text-sm opacity-80'>(<a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS' target='_blank'>ref</a>)</span>
+  - 兩者都需後端回傳 `Access-Control-Allow-Origin` header
+  - 非簡單請求：會先發 preflight request，若未通過則不發正式請求 <br>
+    -> 簡單請求、非簡單請求的正式請求及 preflight request 都需 `Access-Control-Allow-Origin` header
+- 若要傳送自定義 header，後端要新增 `Access-Control-Allow-Headers` 才能通過 preflight <span class='text-sm opacity-80'>(<a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-request-headers' target='_blank'>ref</a>)</span>
+- 跨來源請求阻擋的是…
+  - 簡單請求：阻擋 response
+  - 非簡單請求：阻擋正式 request（因 preflight 驗證未通過，不會發正式 request）
+
+---
+
+# 如何設置 CORS?
+
+之跨來源請求與 cookie
+
+- 跨來源請求預設不會帶上 cookie
+- 跨來源請求要帶上 cookie，須滿足特定條件
+  | 條件 | 簡單請求 | 非簡單請求 |
+  | ---------------------------------------------------------------------------- | -------- | ---------- |
+  | 後端 Response header 有 `Access-Control-Allow-Credentials: true` | 不需要 | 必須 |
+  | 後端 Response header 的 `Access-Control-Allow-Origin` 不能是 `*`，需明確指定 | 不需要 | 必須 |
+  | 前端 fetch 加上 `credentials: 'include'` | 必須 | 必須 |
+
+<style>
+.slidev-layout table td{
+  max-width: 350px;
+}
+</style>
+
+---
+
+```yaml
+layout: center
+```
+
+# 章節回顧
+
+---
+
+# 跨來源的安全性問題
+
+- CORS header 設定若有問題，可能會讓攻擊者存取到不該存取的資源
 
 ---
 
