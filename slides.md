@@ -694,7 +694,7 @@ A: https://blog.example.com:443/posts
 B: https://blog.example.com/about
 ```
 
-Ans：是 same origin，兩個 scheme(https)、host(blog.example.com) 相同，雖然 B 沒有明確指定 port，但 https 預設 port 為 443，兩者 port 也相同。
+是 same origin，兩個 scheme(https)、host(blog.example.com) 相同，雖然 B 沒有明確指定 port，但 https 預設 port 為 443，兩者 port 也相同。
 
 ---
 
@@ -712,7 +712,6 @@ layout: center
 3. https://store.example.com 與 https://blog.example.com
 ```
 
-Ans：
 
 1. 不是 same site，`github.io` 是 public suffix，所以 `alice.github.io` 和 `bob.github.io` 的 registrable domain 不同
 2. 不是 same site，因為 scheme 不同 (https 和 http)
@@ -860,11 +859,94 @@ layout: center
 
 # 章節回顧
 
+1. 瀏覽器阻止跨來源請求的原因是什麼？CORS 在這情境下如何發揮作用？
+
+2. 在 CORS 情境下，簡單請求和非簡單請求有何區別？瀏覽器如何處理這兩種請求？
+
 ---
 
-# 跨來源的安全性問題
+```yaml
+layout: center
+```
 
-- CORS header 設定若有問題，可能會讓攻擊者存取到不該存取的資源
+# 章節回顧
+
+1. 瀏覽器為什麼要阻止跨來源 AJAX？CORS 在這情境下如何發揮作用？
+
+安全性，避免惡意網站存取其他來源的敏感資料；CORS 是一種可跨來源交換網站資料的機制，後端透過`Access-Control-Allow-Origin` header 告知瀏覽器哪個 origin 可存取 response
+
+2. 在 CORS 情境下，簡單請求和非簡單請求有何區別？瀏覽器如何處理這兩種請求？
+
+簡單請求是指符合某些標準（如：用 `GET` 或 `POST` 方法並帶有特定 header）的請求，直接傳送到伺服器。若伺服器沒有回應適當的 `Access-Control-Allow-Origin` header，瀏覽器會阻止我們用 JavaScript 存取 response。非簡單請求涉及一個 preflight request，瀏覽器會先發送 preflight request 來檢查實際請求是否安全可發送，若 preflight request 沒通過，就不會發實際請求。
+<div class='opacity-80'>
+（簡單請求、非簡單請求的正式請求及 preflight request 都要有 `Access-Control-Allow-Origin` header 才合法）
+</div>
+
+
+---
+
+# 跨來源的安全性問題：CORS misconfiguration
+- 若跨來源非簡單請求想帶上 cookie，`Access-Control-Allow-Origin` 就要指定單一 origin
+  - 若多個 origin 都要存取 API，要動態調整 `Access-Control-Allow-Origin` 裡的 origin
+- 動態調整錯誤示範 1：直接放入 request header 內的 origin
+  - -> 任一 origin 都能通過 CORS
+<div class='pl-6'>
+```js
+app.use((req, res, next) => {
+  res.headers['Access-Control-Allow-Credentials'] = 'true'
+  res.headers['Access-Control-Allow-Origin'] = req.headers['Origin']
+})
+```
+</div>
+
+
+---
+
+# 跨來源的安全性問題：CORS misconfiguration
+
+- 動態調整錯誤示範 1：直接放入 request header 內的 origin
+  - 可能問題：寫個網站 `https://fake-example.com` 並讓使用者在 `example.com` 登入狀態下點這網站，可偷到使用者資料
+    - 影響範圍：視網站 API 而定
+    - 攻擊成立的前提
+      - CORS header 錯誤設置
+      - 網站用 cookie 做身份驗證，且沒設 SameSite
+      - 使用者主動點擊網站且是登入狀態
+
+<div class='pl-12'>
+```js {*}{maxHeight:'150px'}
+// fake-example 網站寫這段 script
+// 用 api 去使用者資料，且帶上 cookie (若有設定 SameSite cookie，攻擊會失效，因 cookie 帶不上去)
+fetch('https://api.example.com/me', {
+  credentials: 'include'
+})
+  .then(res => res.text())
+  .then(res => {
+    // 伺服器認可 https://fake-example.com 是合格 origin，fake-example 網站也可拿到使用者資料，可傳送到自己 server
+    console.log(res)
+    // 把使用者導回真正的網站
+    window.location = 'https://example.com'
+  })
+```
+</div>
+
+---
+
+# 跨來源的安全性問題：CORS misconfiguration
+
+- 動態調整錯誤示範 2：Regex 判斷 request origin 是否合法
+  - 可過關
+    - `example.com` ✅
+    - `buy.example.com` ✅
+    - `fakeexample.com` 🔺
+- 錯誤 CORS 設置引起的漏洞稱為 CORS misconfiguration
+
+
+
+
+
+
+
+
 
 ---
 
