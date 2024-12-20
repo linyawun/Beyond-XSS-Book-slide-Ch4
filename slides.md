@@ -878,8 +878,8 @@ layout: center
 2. 在 CORS 情境下，簡單請求和非簡單請求有何區別？瀏覽器如何處理這兩種請求？
 
 簡單請求是指符合某些標準（如：用 `GET` 或 `POST` 方法並帶有特定 header）的請求，直接傳送到伺服器。若伺服器沒有回應適當的 `Access-Control-Allow-Origin` header，瀏覽器會阻止我們用 JavaScript 存取 response。非簡單請求涉及一個 preflight request，瀏覽器會先發送 preflight request 來檢查實際請求是否安全可發送，若 preflight request 沒通過，就不會發實際請求。
-<div class='opacity-80'>
-（簡單請求、非簡單請求的正式請求及 preflight request 都要有 `Access-Control-Allow-Origin` header 才合法）
+<div class='text-sm opacity-80'>
+簡單請求、非簡單請求的正式請求及 preflight request 都要有 <code>Access-Control-Allow-Origin</code> header 才合法
 </div>
 
 
@@ -913,6 +913,7 @@ app.use((req, res, next) => {
       - 使用者主動點擊網站且是登入狀態
 
 <div class='pl-12'>
+
 ```js {*}{maxHeight:'150px'}
 // fake-example 網站寫這段 script
 // 用 api 去使用者資料，且帶上 cookie (若有設定 SameSite cookie，攻擊會失效，因 cookie 帶不上去)
@@ -934,17 +935,222 @@ fetch('https://api.example.com/me', {
 # 跨來源的安全性問題：CORS misconfiguration
 
 - 動態調整錯誤示範 2：Regex 判斷 request origin 是否合法
-  - 可過關
-    - `example.com` ✅
-    - `buy.example.com` ✅
-    - `fakeexample.com` 🔺
+  - 可以：`example.com`、`buy.example.com` ✅
+  - 也可以：`fakeexample.com` 🔺
+
+<div class='pl-12'>
+
+```js {*}{maxHeight:'80px'}
+app.use((req, res, next) => {
+  res.headers['Access-Control-Allow-Credentials'] = 'true'
+  const origin = req.headers['Origin']
+  // 偵測是不是 example.com 結尾
+  if (/example\.com$/.test(origin)) {
+    res.headers['Access-Control-Allow-Origin'] = origin
+  }
+})
+```
+</div>
+  
 - 錯誤 CORS 設置引起的漏洞稱為 CORS misconfiguration
+- 動態調整 CORS 的正確做法
+  - 準備允許的 origin 清單，清單內的才通過
+  - 設 sameSite cookie
+
+<div class='pl-12'>
+
+```js {*}{maxHeight:'100px'}
+const allowOrigins = ['https://example.com', 'https://buy.example.com', 'https://social.example.com']
+app.use((req, res, next) => {
+  res.headers['Access-Control-Allow-Credentials'] = 'true'
+  const origin = req.headers['Origin']
+  if (allowOrigins.includes(origin)) {
+    res.headers['Access-Control-Allow-Origin'] = origin
+  }
+})
+```
+</div>
 
 
 
+---
+
+# 跨來源的安全性問題：CORS misconfiguration
+
+- 實際案例
+  - 2016 年 Jordan Milne 找到的 JetBrain IDE 漏洞 <span class='text-sm opacity-80'>(<a href='https://blog.saynotolinux.com/blog/2016/08/15/jetbrains-ide-remote-code-execution-and-local-file-disclosure-vulnerability-analysis/' target='_blank'>ref</a>)</span>
+    - 漏洞
+      - CORS 設置不當：允許任意網站讀取 locale server 的 response
+      - 路徑遍歷漏洞：攻擊者可讀取本地系統檔案
+    - 攻擊方式：可讀取本地檔案，結合其他漏洞後可達成 RCE
+  - 2017 年 James Kettle 在 AppSec EU 研討會分享的比特幣交易所漏洞 <span class='text-sm opacity-80'>(<a href='https://www.youtube.com/watch?v=wgkj4ZgxI4c&ab_channel=OWASP&themeRefresh=1' target='_blank'>ref</a>)</span>
+    - 漏洞：API 允許任意 origin 跨來源讀取 response
+    - 攻擊方式：可用 API 取得使用者 apiKey，並用它轉移比特幣
+  - 2020 年 Asiayo 漏洞 <span class='text-sm opacity-80'>(<a href='https://zeroday.hitcon.org/vulnerability/ZD-2020-00829' target='_blank'>ref</a>)</span>
+    - 漏洞：和上述相同，可在別的網站拿到使用者資料
 
 
+---
 
+# 其他各種 COXX 系列 header
+<br>
+其他以 CO(Cross-Origin) 開頭的 header，也和跨來源資料存取有關
+
+- CORB（Cross-Origin Read Blocking）
+- CORP（Cross-Origin Resource Policy）
+- COEP（Cross-Origin-Embedder-Policy）
+- COOP（Cross-Origin-Opener-Policy）
+
+<div class='opacity-60 mt-40 text-right'>
+  在那之前，先來看看 Meltdown 與 Spectre...
+</div>
+
+
+---
+
+# 嚴重的安全漏洞：Meltdown 與 Spectre
+
+- 2018 年 Google Project Zero 發布 CPU data cache 攻擊的介紹文章 <span class='text-sm opacity-80'>(<a href='https://googleprojectzero.blogspot.com/2018/01/reading-privileged-memory-with-side.html' target='_blank'>ref</a>)</span>
+  - Spectre: bounds check bypass (CVE-2017-5753), branch target injection (CVE-2017-5715)
+  - Meltdown: rogue data cache load (CVE-2017-5754)
+- 攻擊嚴重性：CPU 問題，難修復
+- 漏洞影響：促進瀏覽器與跨來源政策的演進
+
+---
+
+# 超級簡化版 Spectre 攻擊解釋
+此為方便理解的簡化版，和原始攻擊有落差，但核心概念相似
+
+- 假設一段程式碼（C 語言）
+  - 宣告兩陣列 arr1（長度 16）和 arr2（長度 256）
+  - 函式 `run(x)` 判斷 `x < array1_size`，若符合則執行 `array2[array1[x]]`
+  - 沒超出陣列範圍，理論上沒問題
+
+
+<div class='pl-6'>
+
+```c
+uint8_t arr1[16] = {1, 2, 3}; 
+uint8_t arr2[256]; 
+unsigned int array1_size = 16;
+
+void run(size_t x) {
+  if(x < array1_size) {
+    uint8_t y = array2[array1[x]];
+  }
+}
+
+size_t x = 1;
+run(x);
+```
+</div>
+
+
+---
+
+# 超級簡化版 Spectre 攻擊解釋
+之簡單介紹 CPU 機制
+
+- CPU 機制：Branch Prediction 和 Speculative Execution
+  - CPU 執行時，若碰到 `if`，會先預測結果是 `true` 或 `false`
+    - 若預測結果是 `true`，就先執行 `if` 內程式碼，先算出 `if` 內的結果
+  - 實際 `if` 條件執行完後
+    - 若跟預測相同：皆大歡喜
+    - 若跟預測不同：把計算的結果丟掉
+
+<div class='text-sm opacity-80 pl-6 mt-4'>
+Branch Prediction 是「預測」分支的走向；Speculative Execution 是「基於預測結果」執行分支中的程式碼
+</div>
+
+
+---
+
+# 超級簡化版 Spectre 攻擊解釋
+之簡單介紹 CPU 機制
+
+- Branch Prediction 和 Speculative Execution 有何問題？
+  - CPU 丟棄結果後我們也拿不到，但它有留下線索 🔺
+    - 線索：預測執行時，結果會被放入 CPU cache
+  - 如何判斷資料是否在 CPU cache 內？
+    - 以存取時間判斷，讀取 CPU cache 內資料較快
+  - Side-channel attack：攻擊者可利用存取時間（timing attack）來推測 CPU cache 內的資料
+
+
+---
+
+# 超級簡化版 Spectre 攻擊解釋
+- 再看一次程式碼，可能會有什麼問題？
+  - 跑多次 `run(10)` 後，branch prediction 預測下次也會滿足條件，提前執行 if 內程式碼
+  - 當 `x` 設為 100 時，預測會執行：`uint8_t y = array2[array1[100]];`
+    - 若 `array1[100]` 是 38，則執行 `y = array2[38]`
+    - `array2[38]` 被放入 CPU cache
+  - 實際執行發現條件不符，丟掉執行結果
+  - 此時用 timing attack 讀取 array2 每個元素並計算時間，發現 `array2[38]` 讀取時間最短，回推 `array1[100]` 內容是 38 <br>
+    -> 存取到其他不該存取到的記憶體
+
+<div class='pl-6'>
+
+```c {*}{maxHeight:'100px'}
+uint8_t arr1[16] = {1, 2, 3}; 
+uint8_t arr2[256]; 
+unsigned int array1_size = 16;
+
+void run(size_t x) {
+  if(x < array1_size) {
+    uint8_t y = array2[array1[x]];
+  }
+}
+
+size_t x = 1;
+run(x);
+```
+</div>
+
+---
+
+# 超級簡化版 Spectre 攻擊解釋
+
+- Spectre 攻擊：上述攻擊原理應用於瀏覽器，可讀取同一個 process 的其他資料
+  - 若同一個 process 有其他網站內容，就能讀取其他網站內容
+
+<div class='quote ml-6 mb-10'>
+在瀏覽器上，Spectre 讓你有機會讀取到其他網站的資料
+</div>
+
+- COXX 和 Spectre 的關係
+  - COXX 主要目的：防止一個網站能讀取到其他網站的資料，避免惡意網站跟目標網站處在同一個 process
+
+---
+
+# CORB（Cross-Origin Read Blocking）
+阻擋不合理的跨來源資源載入
+
+- 其他網站的資料會如何出現？跨來源存取資源的方式如：
+  - `fetch` 或 `xhr`
+    - 已被 CORS 控管
+    - response 在 network 相關 process，不是網站本身 process，Spectre 拿不到
+  - `<img>` 或 `<script>`
+    - 可載入機密資料如 `<img src="https://bank.com/secret.json">`
+    - 限制：無法用 JavaScript 讀取
+    - Chrome 運作機制
+      - 下載檔案時，無法確定是否為符合標籤的檔案類型（e.g. 不確定它是否為圖片）
+      - 下載後交由 render process 處理，發現格式錯誤才觸發載入錯誤
+    - 問題：Spectre 只要在同一 process 就可存取，即使進入 render process 也能讀取
+
+---
+
+# CORB（Cross-Origin Read Blocking）
+阻擋不合理的跨來源資源載入
+
+- CORB 是什麼？
+  - 如果想讀的資料類型不合理，就不需要進 render process，把結果丟掉即可
+- 資料類型不合理是什麼意思？
+  - JSON 檔的 MIME type 若是 `application/json`，代表不會是圖片
+  - 用 `<script>` 載入 HTML
+- CORB 主要保護的資料類型：HTML、XML 跟 JSON
+  - 如何判斷這三種類型？
+    - Chrome 根據內容探測（<a href='https://mimesniff.spec.whatwg.org/' target='_blank'>sniffing</a>）檔案類型，決定是否套用 CORB
+      - 有誤判可能
 
 
 
