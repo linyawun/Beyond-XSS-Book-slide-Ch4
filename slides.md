@@ -71,12 +71,12 @@ glowOpacity: 0.3
 
 </div>
 
-<!-- <div my-10 w-min flex="~ gap-1" items-center justify-center>
+<div my-10 w-min flex="~ gap-1" items-center justify-center>
   <mdi:medium op50 ma text-xl/>
   <div><a href="https://medium.com/@linyawun031" target="_blank" class="border-none! font-300">Monica</a></div>
-  <mdi:github op50 ma text-xl ml-4/>
-  <div><a href="https://github.com/linyawun" target="_blank" class="border-none! font-300">Monica</a></div>
-</div> -->
+  <!-- <mdi:github op50 ma text-xl ml-4/>
+  <div><a href="https://github.com/linyawun" target="_blank" class="border-none! font-300">Monica</a></div> -->
+</div>
 
 <!--
 You can have `style` tag in markdown to override the style for the current page.
@@ -235,12 +235,15 @@ domain 結構由右至左來看
   - scheme：`https`
   - host：`huli.tw`
   - port：`443`
-- same origin：兩網站的 scheme、host、port 都相同
+- same origin：兩網站 scheme、host、port 都相同
+<div class='text-4 leading-tight'>
 
 | A                     | B                          | Scheme 相同 | Port 相同 | Host 相同 | Same Origin |
 | --------------------- | -------------------------- | ----------- | --------- | --------- | ----------- |
 | `https://huli.tw/abc` | `https://huli.tw/hello/yo` | ✅          | ✅        | ✅        | ✅          |
 | `https://huli.tw`     | `https://blog.huli.tw`     | ✅          | ✅        | ❌        | ❌          |
+
+</div>
 
 ---
 
@@ -252,12 +255,16 @@ domain 結構由右至左來看
 - same site：兩網站 scheme、host 都相同
   - host 是否相同，會看 registrable domain
 
+<div class='text-4 leading-tight'>
+
 | A                     | B                          | Scheme 相同 | Host 相同 / 同 Registrable Domain | Same Site |
 | --------------------- | -------------------------- | ----------- | --------------------------------- | --------- |
 | `https://huli.tw/abc` | `https://huli.tw/hello/yo` | ✅          | ✅                                | ✅        |
 | `https://huli.tw`     | `http://huli.tw`           | ❌          | ✅                                | ❌        |
 | `http://huli.tw`      | `http://huli.tw:8080`      | ✅          | ✅                                | ✅        |
 | `https://abc.huli.tw` | `https://blog.huli.tw`     | ✅          | 同 domain (`huli.tw`)             | ✅        |
+
+</div>
 
 ---
 
@@ -271,7 +278,7 @@ domain 結構由右至左來看
   - An opaque origin：特殊狀況才會出現
     - 開本機網頁（`file:///...`）發 request 時，origin 會是 opaque origin
   - A tuple origin：主要關注的 origin
-    - tuple origin 包含以下元素
+    - 包含以下元素
       - scheme (an ASCII string)
       - host (a host)
       - port (null or a 16-bit unsigned integer)
@@ -288,7 +295,7 @@ domain 結構由右至左來看
 - 依 spec，提到 same origin，可分兩種
   - same origin
   - same origin-domain
-- 判斷 A 與 B origin 是否為 same origin 的演算法
+- 判斷 A 與 B origin 是否為 same origin
   <div class='quote'>
     <p> Two origins, A and B, are said to be same origin if the following algorithm returns true: </p>
     <p> 1. If A and B are the same opaque origin, then return true. </p>
@@ -328,8 +335,8 @@ domain 結構由右至左來看
   - opaque origin
   - scheme-and-host
 - 依 spec，提到 same site，可分兩種
-  - same site: 會看 scheme
-  - schemelessly same site: 不看 scheme
+  - same site：會看 scheme
+  - schemelessly same site：不看 scheme
 
 ---
 
@@ -420,14 +427,14 @@ domain 結構由右至左來看
 之 registrable domain 是什麼
 
 - public suffix：一個人工維護的<a href='https://publicsuffix.org/list/public_suffix_list.dat' target='_blank'>清單</a>，有「不想被當作是同個網站的列表」
-  - public suffix 如：`github.io`、`com.tw`、`s3.amazonaws.com`、`herokuapp.com`
+  - public suffix 如：`github.io`、`com.tw`、`herokuapp.com`
   - public suffix 也稱為 eTLD（effective Top-Level-Domain）<span class='text-sm opacity-80'>(<a href='https://blog.kalan.dev/2021-11-09-url-and-samesite' target='_blank'>ref</a>)</span>
 - 瀏覽器參考 public suffix 後，才決定 registrable domain 是什麼
   - registrable domain 不同，依 spec 定義，不是 same site
     | Host | Public Suffix | Registrable Domain |
     |----------------------|---------------------|---------------------|
-    | `bob.github.io` | `github.io` | `github.io` |
-    | `alice.github.io` | `github.io` | `github.io` |
+    | `bob.github.io` | `github.io` | `bob.github.io` |
+    | `alice.github.io` | `github.io` | `alice.github.io` |
 
 ---
 
@@ -617,9 +624,9 @@ domain 結構由右至左來看
 
   - same origin-domain 可分三種情況
     - 都是 opaque origin
-    - scheme 和 domain 都相同，且<span v-mark.red='1'>domain 不是 null</span>
+    - scheme 和 domain 都相同，且 <span v-mark.red='1'>domain 不是 null</span>
     - 兩個是 same origin，且 <span v-mark.red='2'>domain 都是 null</span> <br>
-      (後兩者說的 domain 就是指 tuple origin 的 domain 屬性)
+      (後兩者說的 domain 就是 tuple origin 的 domain 屬性)
 
 <!-- 觀察
 兩網頁都有設置 domain 或都沒有，才有可能是 same origin-domain
@@ -711,7 +718,6 @@ layout: center
 2. https://blog.example.com 與 http://example.com
 3. https://store.example.com 與 https://blog.example.com
 ```
-
 
 1. 不是 same site，`github.io` 是 public suffix，所以 `alice.github.io` 和 `bob.github.io` 的 registrable domain 不同
 2. 不是 same site，因為 scheme 不同 (https 和 http)
@@ -815,7 +821,7 @@ layout: center
     ```
     Access-Control-Allow-Origin: https://blog.huli.tw
     ```
-  - `Access-Control-Allow-Origin` 目前不支援多個 origin
+  - `Access-Control-Allow-Origin` 目前不支援多 origin
     - 只能依 request 動態設定不同 header
 
 ---
@@ -826,7 +832,6 @@ layout: center
   - 兩者都需後端回傳 `Access-Control-Allow-Origin` header
   - 非簡單請求：會先發 preflight request，若未通過則不發正式請求 <br>
     -> 簡單請求、非簡單請求的正式請求及 preflight request 都需 `Access-Control-Allow-Origin` header
-- 若要傳送自定義 header，後端要新增 `Access-Control-Allow-Headers` 才能通過 preflight <span class='text-sm opacity-80'>(<a href='https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-request-headers' target='_blank'>ref</a>)</span>
 - 跨來源請求阻擋的是…
   - 簡單請求：阻擋 response
   - 非簡單請求：阻擋正式 request（因 preflight 驗證未通過，不會發正式 request）
@@ -878,33 +883,36 @@ layout: center
 2. 在 CORS 情境下，簡單請求和非簡單請求有何區別？瀏覽器如何處理這兩種請求？
 
 簡單請求是指符合某些標準（如：用 `GET` 或 `POST` 方法並帶有特定 header）的請求，直接傳送到伺服器。若伺服器沒有回應適當的 `Access-Control-Allow-Origin` header，瀏覽器會阻止我們用 JavaScript 存取 response。非簡單請求涉及一個 preflight request，瀏覽器會先發送 preflight request 來檢查實際請求是否安全可發送，若 preflight request 沒通過，就不會發實際請求。
+
 <div class='text-sm opacity-80'>
 簡單請求、非簡單請求的正式請求及 preflight request 都要有 <code>Access-Control-Allow-Origin</code> header 才合法
 </div>
 
-
 ---
 
 # 跨來源的安全性問題：CORS misconfiguration
+
 - 若跨來源非簡單請求想帶上 cookie，`Access-Control-Allow-Origin` 就要指定單一 origin
   - 若多個 origin 都要存取 API，要動態調整 `Access-Control-Allow-Origin` 裡的 origin
-- 動態調整錯誤示範 1：直接放入 request header 內的 origin
+- 動態調整錯誤示範：直接放入 request header 內的 origin
   - -> 任一 origin 都能通過 CORS
+
 <div class='pl-6'>
+
 ```js
 app.use((req, res, next) => {
-  res.headers['Access-Control-Allow-Credentials'] = 'true'
-  res.headers['Access-Control-Allow-Origin'] = req.headers['Origin']
-})
+  res.headers['Access-Control-Allow-Credentials'] = 'true';
+  res.headers['Access-Control-Allow-Origin'] = req.headers['Origin'];
+});
 ```
-</div>
 
+</div>
 
 ---
 
 # 跨來源的安全性問題：CORS misconfiguration
 
-- 動態調整錯誤示範 1：直接放入 request header 內的 origin
+- 動態調整錯誤示範：直接放入 request header 內的 origin
   - 可能問題：寫個網站 `https://fake-example.com` 並讓使用者在 `example.com` 登入狀態下點這網站，可偷到使用者資料
     - 影響範圍：視網站 API 而定
     - 攻擊成立的前提
@@ -918,40 +926,23 @@ app.use((req, res, next) => {
 // fake-example 網站寫這段 script
 // 用 api 去使用者資料，且帶上 cookie (若有設定 SameSite cookie，攻擊會失效，因 cookie 帶不上去)
 fetch('https://api.example.com/me', {
-  credentials: 'include'
+  credentials: 'include',
 })
-  .then(res => res.text())
-  .then(res => {
+  .then((res) => res.text())
+  .then((res) => {
     // 伺服器認可 https://fake-example.com 是合格 origin，fake-example 網站也可拿到使用者資料，可傳送到自己 server
-    console.log(res)
+    console.log(res);
     // 把使用者導回真正的網站
-    window.location = 'https://example.com'
-  })
+    window.location = 'https://example.com';
+  });
 ```
+
 </div>
 
 ---
 
 # 跨來源的安全性問題：CORS misconfiguration
 
-- 動態調整錯誤示範 2：Regex 判斷 request origin 是否合法
-  - 可以：`example.com`、`buy.example.com` ✅
-  - 也可以：`fakeexample.com` 🔺
-
-<div class='pl-12'>
-
-```js {*}{maxHeight:'80px'}
-app.use((req, res, next) => {
-  res.headers['Access-Control-Allow-Credentials'] = 'true'
-  const origin = req.headers['Origin']
-  // 偵測是不是 example.com 結尾
-  if (/example\.com$/.test(origin)) {
-    res.headers['Access-Control-Allow-Origin'] = origin
-  }
-})
-```
-</div>
-  
 - 錯誤 CORS 設置引起的漏洞稱為 CORS misconfiguration
 - 動態調整 CORS 的正確做法
   - 準備允許的 origin 清單，清單內的才通過
@@ -959,19 +950,22 @@ app.use((req, res, next) => {
 
 <div class='pl-12'>
 
-```js {*}{maxHeight:'100px'}
-const allowOrigins = ['https://example.com', 'https://buy.example.com', 'https://social.example.com']
+```js
+const allowOrigins = [
+  'https://example.com',
+  'https://buy.example.com',
+  'https://social.example.com',
+];
 app.use((req, res, next) => {
-  res.headers['Access-Control-Allow-Credentials'] = 'true'
-  const origin = req.headers['Origin']
+  res.headers['Access-Control-Allow-Credentials'] = 'true';
+  const origin = req.headers['Origin'];
   if (allowOrigins.includes(origin)) {
-    res.headers['Access-Control-Allow-Origin'] = origin
+    res.headers['Access-Control-Allow-Origin'] = origin;
   }
-})
+});
 ```
+
 </div>
-
-
 
 ---
 
@@ -979,20 +973,13 @@ app.use((req, res, next) => {
 
 - 實際案例
   - 2016 年 Jordan Milne 找到的 JetBrain IDE 漏洞 <span class='text-sm opacity-80'>(<a href='https://blog.saynotolinux.com/blog/2016/08/15/jetbrains-ide-remote-code-execution-and-local-file-disclosure-vulnerability-analysis/' target='_blank'>ref</a>)</span>
-    - 漏洞
-      - CORS 設置不當：允許任意網站讀取 locale server 的 response
-      - 路徑遍歷漏洞：攻擊者可讀取本地系統檔案
-    - 攻擊方式：可讀取本地檔案，結合其他漏洞後可達成 RCE
   - 2017 年 James Kettle 在 AppSec EU 研討會分享的比特幣交易所漏洞 <span class='text-sm opacity-80'>(<a href='https://www.youtube.com/watch?v=wgkj4ZgxI4c&ab_channel=OWASP&themeRefresh=1' target='_blank'>ref</a>)</span>
-    - 漏洞：API 允許任意 origin 跨來源讀取 response
-    - 攻擊方式：可用 API 取得使用者 apiKey，並用它轉移比特幣
   - 2020 年 Asiayo 漏洞 <span class='text-sm opacity-80'>(<a href='https://zeroday.hitcon.org/vulnerability/ZD-2020-00829' target='_blank'>ref</a>)</span>
-    - 漏洞：和上述相同，可在別的網站拿到使用者資料
-
 
 ---
 
 # 其他各種 COXX 系列 header
+
 <br>
 其他以 CO(Cross-Origin) 開頭的 header，也和跨來源資料存取有關
 
@@ -1004,7 +991,6 @@ app.use((req, res, next) => {
 <div class='opacity-60 mt-40 text-right'>
   在那之前，先來看看 Meltdown 與 Spectre...
 </div>
-
 
 ---
 
@@ -1019,6 +1005,7 @@ app.use((req, res, next) => {
 ---
 
 # 超級簡化版 Spectre 攻擊解釋
+
 此為方便理解的簡化版，和原始攻擊有落差，但核心概念相似
 
 - 假設一段程式碼（C 語言）
@@ -1026,12 +1013,11 @@ app.use((req, res, next) => {
   - 函式 `run(x)` 判斷 `x < array1_size`，若符合則執行 `array2[array1[x]]`
   - 沒超出陣列範圍，理論上沒問題
 
-
 <div class='pl-6'>
 
 ```c
-uint8_t arr1[16] = {1, 2, 3}; 
-uint8_t arr2[256]; 
+uint8_t arr1[16] = {1, 2, 3};
+uint8_t arr2[256];
 unsigned int array1_size = 16;
 
 void run(size_t x) {
@@ -1043,12 +1029,13 @@ void run(size_t x) {
 size_t x = 1;
 run(x);
 ```
-</div>
 
+</div>
 
 ---
 
 # 超級簡化版 Spectre 攻擊解釋
+
 之簡單介紹 CPU 機制
 
 - CPU 機制：Branch Prediction 和 Speculative Execution
@@ -1062,10 +1049,10 @@ run(x);
 Branch Prediction 是「預測」分支的走向；Speculative Execution 是「基於預測結果」執行分支中的程式碼
 </div>
 
-
 ---
 
 # 超級簡化版 Spectre 攻擊解釋
+
 之簡單介紹 CPU 機制
 
 - Branch Prediction 和 Speculative Execution 有何問題？
@@ -1075,10 +1062,10 @@ Branch Prediction 是「預測」分支的走向；Speculative Execution 是「�
     - 以存取時間判斷，讀取 CPU cache 內資料較快
   - Side-channel attack：攻擊者可利用存取時間（timing attack）來推測 CPU cache 內的資料
 
-
 ---
 
 # 超級簡化版 Spectre 攻擊解釋
+
 - 再看一次程式碼，可能會有什麼問題？
   - 跑多次 `run(10)` 後，branch prediction 預測下次也會滿足條件，提前執行 if 內程式碼
   - 當 `x` 設為 100 時，預測會執行：`uint8_t y = array2[array1[100]];`
@@ -1091,8 +1078,8 @@ Branch Prediction 是「預測」分支的走向；Speculative Execution 是「�
 <div class='pl-6'>
 
 ```c {*}{maxHeight:'100px'}
-uint8_t arr1[16] = {1, 2, 3}; 
-uint8_t arr2[256]; 
+uint8_t arr1[16] = {1, 2, 3};
+uint8_t arr2[256];
 unsigned int array1_size = 16;
 
 void run(size_t x) {
@@ -1104,6 +1091,7 @@ void run(size_t x) {
 size_t x = 1;
 run(x);
 ```
+
 </div>
 
 ---
@@ -1112,10 +1100,9 @@ run(x);
 
 - Spectre 攻擊：上述攻擊原理應用於瀏覽器，可讀取同一個 process 的其他資料
   - 若同一個 process 有其他網站內容，就能讀取其他網站內容
+    > 在瀏覽器上，Spectre 讓你有機會讀取到其他網站的資料
 
-<div class='quote ml-6 mb-10'>
-在瀏覽器上，Spectre 讓你有機會讀取到其他網站的資料
-</div>
+<br>
 
 - COXX 和 Spectre 的關係
   - COXX 主要目的：防止一個網站能讀取到其他網站的資料，避免惡意網站跟目標網站處在同一個 process
@@ -1123,6 +1110,7 @@ run(x);
 ---
 
 # CORB（Cross-Origin Read Blocking）
+
 阻擋不合理的跨來源資源載入
 
 - 其他網站的資料會如何出現？跨來源存取資源的方式如：
@@ -1140,587 +1128,295 @@ run(x);
 ---
 
 # CORB（Cross-Origin Read Blocking）
+
 阻擋不合理的跨來源資源載入
 
 - CORB 是什麼？
-  - 如果想讀的資料類型不合理，就不需要進 render process，把結果丟掉即可
+  - 如果想讀的資料類型不合理，就不需進 render process，把結果丟掉即可
 - 資料類型不合理是什麼意思？
-  - JSON 檔的 MIME type 若是 `application/json`，代表不會是圖片
+  - 用 `<img>` 載入 MIME type 是 `application/json` 的 JSON 檔
   - 用 `<script>` 載入 HTML
 - CORB 主要保護的資料類型：HTML、XML 跟 JSON
   - 如何判斷這三種類型？
     - Chrome 根據內容探測（<a href='https://mimesniff.spec.whatwg.org/' target='_blank'>sniffing</a>）檔案類型，決定是否套用 CORB
-      - 有誤判可能
-
-
+      - 若確定伺服器給的 content type 正確，可傳 response header `X-Content-Type-Options: nosniff`，Chrome 會直接用給定的 content type
 
 ---
 
-# Code
+# CORB（Cross-Origin Read Blocking）
 
-Use code snippets and get the highlighting directly, and even types hover!
+阻擋不合理的跨來源資源載入
 
-```ts {all|5|7|7-8|10|all} twoslash
-// TwoSlash enables TypeScript hover information
-// and errors in markdown code blocks
-// More at https://shiki.style/packages/twoslash
-
-import { computed, ref } from 'vue';
-
-const count = ref(0);
-const doubled = computed(() => count.value * 2);
-
-doubled.value = 2;
-```
-
-<arrow v-click="[4, 5]" x1="350" y1="310" x2="195" y2="334" color="#953" width="2" arrowSize="1" />
-
-<!-- This allow you to embed external code blocks -->
-
-<<< @/snippets/external.ts#snippet
-
-<!-- Footer -->
-
-[Learn more](https://sli.dev/features/line-highlighting)
-
-<!-- Inline style -->
-<style>
-.footnotes-sep {
-  @apply mt-5 opacity-10;
-}
-.footnotes {
-  @apply text-sm opacity-75;
-}
-.footnote-backref {
-  display: none;
-}
-</style>
-
-<!--
-Notes can also sync with clicks
-
-[click] This will be highlighted after the first click
-
-[click] Highlighted with `count = ref(0)`
-
-[click:3] Last click (skip two clicks)
--->
+- CORB 瀏覽器支援度
+  - Chrome：已預設，會自動阻擋不合理的跨來源資源載入
+  - Firefox：目前沒找到有預設 CORB，但有查到會有 MIME 類型檢查 <span class='text-sm opacity-80'>(<a href='https://blog.mozilla.org/security/2016/08/26/mitigating-mime-confusion-attacks-in-firefox/' target='_blank'>ref</a>)</span>
 
 ---
 
-## level: 2
+# CORP（Cross-Origin Resource Policy）
 
-# Shiki Magic Move
+阻止任何跨來源資源載入，保護網站資源不被其他人載入
 
-Powered by [shiki-magic-move](https://shiki-magic-move.netlify.app/), Slidev supports animations across multiple code snippets.
+- CORP 使用情境：知道該保護哪些資源，指定這些資源只能被哪些來源載入
+- CORP 可填入的值
+  - same-site
+  - same-origin
+  - cross-origin：所有跨來源都可載入
+    - 和沒設差不多，只在 COEP 值是 require-corp 時有差
+- CORP 使用方式
+  - 主流瀏覽器都已支援此 header，可手動傳入
+  - server 回傳時設 response header `Cross-Origin-Resource-Policy`
 
-Add multiple code blocks and wrap them with <code>````md magic-move</code> (four backticks) to enable the magic move. For example:
+<div class='pl-6'>
 
-````md magic-move {lines: true}
-```ts {*|2|*}
-// step 1
-const author = reactive({
-  name: 'John Doe',
-  books: [
-    'Vue 2 - Advanced Guide',
-    'Vue 3 - Basic Guide',
-    'Vue 4 - The Mystery',
-  ],
+```js {*}{maxHeight:'80px'}
+app.use((req, res, next) => {
+  res.header('Cross-Origin-Resource-Policy', 'same-origin');
+  next();
 });
 ```
 
-```ts {*|1-2|3-4|3-4,8}
-// step 2
-export default {
-  data() {
-    return {
-      author: {
-        name: 'John Doe',
-        books: [
-          'Vue 2 - Advanced Guide',
-          'Vue 3 - Basic Guide',
-          'Vue 4 - The Mystery',
-        ],
-      },
-    };
-  },
-};
-```
-
-```ts
-// step 3
-export default {
-  data: () => ({
-    author: {
-      name: 'John Doe',
-      books: [
-        'Vue 2 - Advanced Guide',
-        'Vue 3 - Basic Guide',
-        'Vue 4 - The Mystery',
-      ],
-    },
-  }),
-};
-```
-
-Non-code blocks are ignored.
-
-```vue
-<!-- step 4 -->
-<script setup>
-const author = {
-  name: 'John Doe',
-  books: [
-    'Vue 2 - Advanced Guide',
-    'Vue 3 - Basic Guide',
-    'Vue 4 - The Mystery',
-  ],
-};
-</script>
-```
-````
+</div>
 
 ---
 
-# Components
+# CORP（Cross-Origin Resource Policy）
 
-<div grid="~ cols-2 gap-4">
-<div>
+阻止任何跨來源資源載入，保護網站資源不被其他人載入
 
-You can use Vue components directly inside your slides.
-
-We have provided a few built-in components like `<Tweet/>` and `<Youtube/>` that you can use directly. And adding your custom components is also super easy.
-
-```html
-<Counter :count="10" />
-```
-
-<!-- ./components/Counter.vue -->
-<Counter :count="10" m="t-4" />
-
-Check out [the guides](https://sli.dev/builtin/components.html) for more.
-
-</div>
-<div>
-
-```html
-<Tweet id="1390115482657726468" />
-```
-
-<Tweet id="1390115482657726468" scale="0.65" />
-
-</div>
-</div>
-
-<!--
-Presenter note with **bold**, *italic*, and ~~striked~~ text.
-
-Also, HTML elements are valid:
-<div class="flex w-full">
-  <span style="flex-grow: 1;">Left content</span>
-  <span>Right content</span>
-</div>
--->
+- CORP 可視為「資源版的 CORS」
+  - CORS：API 或「資料」間存取的協議，讓跨來源存取資料需要許可
+  - CORP：資源（如 `<img>` 或 `<script>`）間的存取協議，讓任何跨來源資源載入需要許可
+    - 任何跨來源不含 iframe，CORP 對 iframe 無效
+- CORP 阻止「任何跨來源載入」的目的
+  - 安全性
+  - 阻止別人載入你的資源
+    - 擁有資源者可避免支付對應流量與費用
+    - 避免 Clickjacking
+    - 避免隱私洩漏
 
 ---
 
-## class: px-20
+# Site Isolation
 
-# Themes
+- 防止 Spectre 攻擊的方式
+  - 不讓攻擊者有機會執行 Spectre 攻擊
+  - 就算執行攻擊，也拿不到想要的資訊
+- 如何「不讓攻擊者有機會執行 Spectre 攻擊」？ <span class='text-sm opacity-80'>Spectre 攻擊後，瀏覽器的調整</span>
+  - 降低 `performance.now` 精準度
+  - 停用 `SharedArrayBuffer`
+    - `SharedArrayBuffer`：讓 document 的 JavaScript 跟 web worker 共用同記憶體，共享資料
+- 如何「就算執行攻擊，也拿不到想要的資訊」？
+  - 不讓惡意網站拿到跨來源網站的資訊，如：CORB、Site Isolation
 
-Slidev comes with powerful theming support. Themes can provide styles, layouts, components, or even configurations for tools. Switching between themes by just **one edit** in your frontmatter:
+---
 
-<div grid="~ cols-2 gap-2" m="t-2">
+# Site Isolation
+
+- Site Isolation
+  - 行為：將不同網站（site）資源放在不同 process
+    - 不同網站的定義：和 same site 的 site 定義相同，same site 同 process，反之不同 process
+  - 隔離對象：process
+  - 目的：即使有 Spectre 攻擊也讀不到其他網站的資料
+  - 使用方式：Chrome 預設啟用
+  - 缺點：使用的記憶體變多
+
+---
+
+# Site Isolation
+
+- cross-origin isolated state
+  - 設置前提：確認自己網站的所有跨來源存取都合法、有權限
+  - 行為：將不同網站（origin）資源放在不同 browsing context group
+  - 使用方式：在網頁設這兩個 header
+    - `Cross-Origin-Embedder-Policy: require-corp`
+    - `Cross-Origin-Opener-Policy: same-origin`
+
+---
+
+# COEP（Cross-Origin-Embedder-Policy）
+
+確保頁面上所有資源都是合法載入
+
+- COEP 可填入的值
+  - unsafe-none：預設值，沒限制
+  - require-corp：頁面上所有載入的資源，都必須有 CORP 這 header 存在（或 CORS），且是合法的
+- 範例：想將網站 `a.example.com` 變成 cross-rogin isolated state
+  - 幫網站加上 header `Cross-Origin-Embedder-Policy: require-corp`
+  - 在網頁引入資源 `<img src="http://b.example.com/logo.jpg">`
+  - 提供資源的 b 傳送正確 header
+
+<div class='pl-6'>
+
+```js
+app.use((req, res, next) => {
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+});
+```
+
+</div>
+
+- CORP 沒設定 與 設定 cross-origin 的差異
+  - CORP 有設定 cross-origin 才能通過 COEP `require-corp` 要求
+
+---
+
+# COOP（Cross-Origin-Opener-Policy）
+
+為 same origin 加上更嚴格的 window 共享設定
+
+- COOP 目的：規範 window 跟 opener 間的關係
+  - 為何要規範? 用 `window.open` 開新網頁時，可操控新網頁的 location，新網頁也可用 `window.opener` 操控原網頁
+- COOP 可填入的值
+  - unsafe-none：預設值
+  - same-origin
+  - same-origin-allow-popups
+  - same-origin-plus-COEP
+
+---
+
+# COOP（Cross-Origin-Opener-Policy）
+
+為 same origin 加上更嚴格的 window 共享設定
+
+- same-origin 與 same-origin-allow-popups 的範例解釋
+
+  - 情境：網頁 A 用 `window.open` 開啟網頁 B
+    <div class='text-4 leading-tight'>
+
+    | **條件**                                                           | **存取限制**                                                                             |
+    | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+    | AB 是 cross-origin                                                 | 瀏覽器限制：只能存取 `window.location` 或 `window.close` 方法<br>無法存取 DOM 或其他方法 |
+    | AB 是 same-origin                                                  | 可互相存取幾乎完整的 `window`，包括 DOM                                                  |
+    | AB 是 same-origin 且 A 加上 COOP header `same-origin`              | B 必須也有 COOP header `same-origin`，才能互相存取 `window`                              |
+    | AB 是 same-origin 且 A 加上 COOP header `same-origin-allow-popups` | 若 B 的 COOP header 不是 `same-origin`，就可互相存取 `window`                            |
+
+    </div>
+
+---
+
+# COOP（Cross-Origin-Opener-Policy）
+
+為 same origin 加上更嚴格的 window 共享設定
+
+- 互相存取 window 的條件
+  - 必須是 same-origin
+  - 是否能存取，取決於 COOP header 設定與值
+- COOP header 的影響
+  - 若設定但不符規則
+    - `window.opener` 變為 null
+    - 無法存取 `window.location`
+  - 若未設定 COOP header
+    - Cross-origin 預設仍可存取 `window.location`
+
+---
+
+# 再回到 cross-origin isolated state
+
+- cross-origin isolated state 要設兩 header
+  - `Cross-Origin-Embedder-Policy: require-corp`
+  - `Cross-Origin-Opener-Policy: same-origin`
+- cross-origin isolated state 代表什麼？
+  - 頁面上所有跨來源資源你都有權限存取 (你請求的資源，對方 server 需回應對應 header 來允許)
+- 進入 cross-origin isolated state 後…
+  - 使用以下功能的限制較少 <span class='text-sm opacity-80'>(<a href='https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated' target='_blank'>ref</a>)</span>
+    - `SharedArrayBuffer` 可用 `Window.postMessage` 或 `MessagePort.postMessage` 創建或傳遞
+    - `performance.now` 可提供更精確結果
+  - 不能用 `document.domain` 繞過 same-origin policy
+
+---
+
+# COXX 系列 小結
+
+|                                         | **類型**             | **目的**                                                 |
+| --------------------------------------- | -------------------- | -------------------------------------------------------- |
+| **CORB** (Cross-Origin Read Blocking)   | 瀏覽器預設機制       | 防止載入不合理資源，例如：用 `<img>` 載入 HTML           |
+| **CORP** (Cross-Origin Resource Policy) | HTTP Response Header | 決定資源可以被誰載入，防止跨來源載入圖片、影片或其他資源 |
+| **COEP** (Cross-Origin-Embedder-Policy) | HTTP Response Header | 確保頁面上所有資源都是合法載入                           |
+| **COOP** (Cross-Origin-Opener-Policy)   | HTTP Response Header | 為同 same-origin 加上更嚴格的 `window` 共享設定          |
+
+---
 
 ```yaml
----
-theme: default
----
+layout: center
 ```
+
+# 章節回顧
+
+1. 什麼是 CORS misconfiguration? 請說明一個常見的錯誤設置方式及正確的設置方式
+2. 請解釋 COXX 系列 header 中的 CORB 和 CORP 有什麼差異? 它們各自解決什麼問題?
+3. 什麼是 cross-origin isolated state? 要如何啟用它，啟用後有什麼好處和限制?
+
+---
 
 ```yaml
----
-theme: seriph
----
+layout: center
 ```
 
-<img border="rounded" src="https://github.com/slidevjs/themes/blob/main/screenshots/theme-default/01.png?raw=true" alt="">
+# 章節回顧
 
-<img border="rounded" src="https://github.com/slidevjs/themes/blob/main/screenshots/theme-seriph/01.png?raw=true" alt="">
+1. 什麼是 CORS misconfiguration? 請說明一個常見的錯誤設置方式及正確的設置方式
 
-</div>
+錯誤設置方式：直接將請求中的 Origin header 值設為 Access-Control-Allow-Origin 的值，這樣會允許任何來源存取 API。
 
-Read more about [How to use a theme](https://sli.dev/guide/theme-addon#use-theme) and
-check out the [Awesome Themes Gallery](https://sli.dev/resources/theme-gallery).
-
----
-
-# Clicks Animations
-
-You can add `v-click` to elements to add a click animation.
-
-<div v-click>
-
-This shows up when you click the slide:
-
-```html
-<div v-click>This shows up when you click the slide.</div>
+```js
+// 錯誤設置
+app.use((req, res, next) => {
+  res.headers['Access-Control-Allow-Origin'] = req.headers['Origin'];
+});
 ```
 
-</div>
+正確設置方式：準備允許的 origin 清單，只允許清單內的 origin
 
-<br>
-
-<v-click>
-
-The <span v-mark.red="3"><code>v-mark</code> directive</span>
-also allows you to add
-<span v-mark.circle.orange="4">inline marks</span>
-, powered by [Rough Notation](https://roughnotation.com/):
-
-```html
-<span v-mark.underline.orange>inline markers</span>
-```
-
-</v-click>
-
-<div mt-20 v-click>
-
-[Learn more](https://sli.dev/guide/animations#click-animation)
-
-</div>
-
----
-
-# Motions
-
-Motion animations are powered by [@vueuse/motion](https://motion.vueuse.org/), triggered by `v-motion` directive.
-
-```html
-<div
-  v-motion
-  :initial="{ x: -80 }"
-  :enter="{ x: 0 }"
-  :click-3="{ x: 80 }"
-  :leave="{ x: 1000 }"
->
-  Slidev
-</div>
-```
-
-<div class="w-60 relative">
-  <div class="relative w-40 h-40">
-    <img
-      v-motion
-      :initial="{ x: 800, y: -100, scale: 1.5, rotate: -50 }"
-      :enter="final"
-      class="absolute inset-0"
-      src="https://sli.dev/logo-square.png"
-      alt=""
-    />
-    <img
-      v-motion
-      :initial="{ y: 500, x: -100, scale: 2 }"
-      :enter="final"
-      class="absolute inset-0"
-      src="https://sli.dev/logo-circle.png"
-      alt=""
-    />
-    <img
-      v-motion
-      :initial="{ x: 600, y: 400, scale: 2, rotate: 100 }"
-      :enter="final"
-      class="absolute inset-0"
-      src="https://sli.dev/logo-triangle.png"
-      alt=""
-    />
-  </div>
-
-  <div
-    class="text-5xl absolute top-14 left-40 text-[#2B90B6] -z-1"
-    v-motion
-    :initial="{ x: -80, opacity: 0}"
-    :enter="{ x: 0, opacity: 1, transition: { delay: 2000, duration: 1000 } }">
-    Slidev
-  </div>
-</div>
-
-<!-- vue script setup scripts can be directly used in markdown, and will only affects current page -->
-<script setup lang="ts">
-const final = {
-  x: 0,
-  y: 0,
-  rotate: 0,
-  scale: 1,
-  transition: {
-    type: 'spring',
-    damping: 10,
-    stiffness: 20,
-    mass: 2
+```js
+const allowOrigins = ['https://example.com', 'https://buy.example.com'];
+app.use((req, res, next) => {
+  const origin = req.headers['Origin'];
+  if (allowOrigins.includes(origin)) {
+    res.headers['Access-Control-Allow-Origin'] = origin;
   }
-}
-</script>
-
-<div
-  v-motion
-  :initial="{ x:35, y: 30, opacity: 0}"
-  :enter="{ y: 0, opacity: 1, transition: { delay: 3500 } }">
-
-[Learn more](https://sli.dev/guide/animations.html#motion)
-
-</div>
-
----
-
-# LaTeX
-
-LaTeX is supported out-of-box. Powered by [KaTeX](https://katex.org/).
-
-<div h-3 />
-
-Inline $\sqrt{3x-1}+(1+x)^2$
-
-Block
-
-$$
-{1|3|all}
-\begin{aligned}
-\nabla \cdot \vec{E} &= \frac{\rho}{\varepsilon_0} \\
-\nabla \cdot \vec{B} &= 0 \\
-\nabla \times \vec{E} &= -\frac{\partial\vec{B}}{\partial t} \\
-\nabla \times \vec{B} &= \mu_0\vec{J} + \mu_0\varepsilon_0\frac{\partial\vec{E}}{\partial t}
-\end{aligned}
-$$
-
-[Learn more](https://sli.dev/features/latex)
-
----
-
-# Diagrams
-
-You can create diagrams / graphs from textual descriptions, directly in your Markdown.
-
-<div class="grid grid-cols-4 gap-5 pt-4 -mb-6">
-
-```mermaid {scale: 0.5, alt: 'A simple sequence diagram'}
-sequenceDiagram
-    Alice->John: Hello John, how are you?
-    Note over Alice,John: A typical interaction
+});
 ```
 
-```mermaid {theme: 'neutral', scale: 0.8}
-graph TD
-B[Text] --> C{Decision}
-C -->|One| D[Result 1]
-C -->|Two| E[Result 2]
+---
+
+```yaml
+layout: center
 ```
 
-```mermaid
-mindmap
-  root((mindmap))
-    Origins
-      Long history
-      ::icon(fa fa-book)
-      Popularisation
-        British popular psychology author Tony Buzan
-    Research
-      On effectiveness<br/>and features
-      On Automatic creation
-        Uses
-            Creative techniques
-            Strategic planning
-            Argument mapping
-    Tools
-      Pen and paper
-      Mermaid
+# 章節回顧
+
+2. 請解釋 COXX 系列 header 中的 CORB 和 CORP 有什麼差異? 它們各自解決什麼問題?
+
+- CORB (Cross-Origin Read Blocking)
+  - 是瀏覽器的預設機制
+  - 主要用於阻擋不合理的資源載入，如用 `<img>` 載入 HTML
+  - 主要保護 HTML、XML 和 JSON 類型的資源
+- CORP (Cross-Origin Resource Policy)
+  - 是一個 HTTP Response Header
+  - 讓資源擁有者可明確指定哪些來源可以載入該資源
+  - 可防止任何跨來源載入（包含圖片、影片等資源）
+
+---
+
+```yaml
+layout: center
 ```
 
-```plantuml {scale: 0.7}
-@startuml
+# 章節回顧
 
-package "Some Group" {
-  HTTP - [First Component]
-  [Another Component]
-}
+3. 什麼是 cross-origin isolated state? 要如何啟用它，啟用後有什麼好處和限制?
 
-node "Other Groups" {
-  FTP - [Second Component]
-  [First Component] --> FTP
-}
-
-cloud {
-  [Example 1]
-}
-
-database "MySql" {
-  folder "This is my folder" {
-    [Folder 3]
-  }
-  frame "Foo" {
-    [Frame 4]
-  }
-}
-
-[Another Component] --> [Example 1]
-[Example 1] --> [Folder 3]
-[Folder 3] --> [Frame 4]
-
-@enduml
-```
-
-</div>
-
-Learn more: [Mermaid Diagrams](https://sli.dev/features/mermaid) and [PlantUML Diagrams](https://sli.dev/features/plantuml)
-
----
-
-foo: bar
-dragPos:
-square: 691,32,167,\_,-16
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-dragPos:
-square: -106,0,0,0
-
----
-
-# Draggable Elements
-
-Double-click on the draggable elements to edit their positions.
-
-<br>
-
-###### Directive Usage
-
-```md
-<img v-drag="'square'" src="https://sli.dev/logo.png">
-```
-
-<br>
-
-###### Component Usage
-
-```md
-<v-drag text-3xl>
-  <div class="i-carbon:arrow-up" />
-  Use the `v-drag` component to have a draggable container!
-</v-drag>
-```
-
-<v-drag pos="663,206,261,_,-15">
-  <div text-center text-3xl border border-main rounded>
-    Double-click me!
-  </div>
-</v-drag>
-
-<img v-drag="'square'" src="https://sli.dev/logo.png">
-
-###### Draggable Arrow
-
-```md
-<v-drag-arrow two-way />
-```
-
-<v-drag-arrow pos="67,452,253,46" two-way op70 />
-
----
-
-src: ./pages/imported-slides.md
-hide: false
-
----
-
----
-
-# Monaco Editor
-
-Slidev provides built-in Monaco Editor support.
-
-Add `{monaco}` to the code block to turn it into an editor:
-
-```ts {monaco}
-import { ref } from 'vue';
-import { emptyArray } from './external';
-
-const arr = ref(emptyArray(10));
-```
-
-Use `{monaco-run}` to create an editor that can execute the code directly in the slide:
-
-```ts {monaco-run}
-import { version } from 'vue';
-import { emptyArray, sayHello } from './external';
-
-sayHello();
-console.log(`vue ${version}`);
-console.log(
-  emptyArray<number>(10).reduce(
-    (fib) => [...fib, fib.at(-1)! + fib.at(-2)!],
-    [1, 1]
-  )
-);
-```
+- 啟用方式
+  - `Cross-Origin-Embedder-Policy: require-corp`
+  - `Cross-Origin-Opener-Policy: same-origin`
+- 好處
+  - 可使用 `SharedArrayBuffer`
+  - `performance.now` 可提供更精確的時間
+- 限制
+  - 頁面上所有跨來源資源都必須有適當的 CORP header 或 CORS 設置
+  - 需確保網站所有的跨來源資源存取都合法且
 
 ---
 
@@ -1736,8 +1432,9 @@ routeAlias: additionalInfo
 
 ---
 
-# Learn More
+```yaml
+layout: center
+glowSeed: 10
+```
 
-[Documentation](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/resources/showcases)
-
-<PoweredBySlidev mt-10 />
+# Thanks for Listening!
