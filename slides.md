@@ -145,7 +145,7 @@ layout: center
 layout: center
 ```
 
-# 本次導讀 Ch4-1~4-3
+# 本次導讀 ch4-1~4-3
 
 ## Same-origin policy、site、CORS 與跨來源資源
 
@@ -241,6 +241,7 @@ domain 結構由右至左來看
 | A                     | B                          | Scheme 相同 | Port 相同 | Host 相同 | Same Origin |
 | --------------------- | -------------------------- | ----------- | --------- | --------- | ----------- |
 | `https://huli.tw/abc` | `https://huli.tw/hello/yo` | ✅          | ✅        | ✅        | ✅          |
+| `https://huli.tw`     | `http://huli.tw`           | ❌          | ❌        | ✅        | ❌          |
 | `https://huli.tw`     | `https://blog.huli.tw`     | ✅          | ✅        | ❌        | ❌          |
 
 </div>
@@ -1159,12 +1160,12 @@ run(x);
 
 - CORP 使用情境：知道該保護哪些資源，指定這些資源只能被哪些來源載入
 - CORP 可填入的值
-  - same-site
-  - same-origin
-  - cross-origin：所有跨來源都可載入
-    - 和沒設差不多，只在 COEP 值是 require-corp 時有差
+  - `same-site`
+  - `same-origin`
+  - `cross-origin`：所有跨來源都可載入
+    - 和沒設差不多，只在 COEP 是 `require-corp` 時有差
 - CORP 使用方式
-  - 主流瀏覽器都已支援此 header，可手動傳入
+  - 主流瀏覽器都已支援，可手動傳入
   - server 回傳時設 response header `Cross-Origin-Resource-Policy`
 
 <div class='pl-6'>
@@ -1185,9 +1186,9 @@ app.use((req, res, next) => {
 阻止任何跨來源資源載入，保護網站資源不被其他人載入
 
 - CORP 可視為「資源版的 CORS」
-  - CORS：API 或「資料」間存取的協議，讓跨來源存取資料需要許可
-  - CORP：資源（如 `<img>` 或 `<script>`）間的存取協議，讓任何跨來源資源載入需要許可
-    - 任何跨來源不含 iframe，CORP 對 iframe 無效
+  - CORS：API 或資料間存取的協議，讓跨來源資料存取需要許可
+  - CORP：資源（如 `<img>`）間的存取協議，讓任何跨來源資源載入需要許可
+    - 任何跨來源不含 iframe
 - CORP 阻止「任何跨來源載入」的目的
   - 安全性
   - 阻止別人載入你的資源
@@ -1215,7 +1216,7 @@ app.use((req, res, next) => {
 
 - Site Isolation
   - 行為：將不同網站（site）資源放在不同 process
-    - 不同網站的定義：和 same site 的 site 定義相同，same site 同 process，反之不同 process
+    - 不同網站定義：和 same site 的 site 定義相同，same site 同 process，反之隔離
   - 隔離對象：process
   - 目的：即使有 Spectre 攻擊也讀不到其他網站的資料
   - 使用方式：Chrome 預設啟用
@@ -1226,8 +1227,10 @@ app.use((req, res, next) => {
 # Site Isolation
 
 - cross-origin isolated state
-  - 設置前提：確認自己網站的所有跨來源存取都合法、有權限
   - 行為：將不同網站（origin）資源放在不同 browsing context group
+    - 不同網站定義：和 same origin 的 origin 定義相同，same origin 同 browsing context group，反之隔離
+  - 隔離對象：browsing context group
+  - 設置前提：確認自己網站的所有跨來源存取都合法、有權限
   - 使用方式：在網頁設這兩個 header
     - `Cross-Origin-Embedder-Policy: require-corp`
     - `Cross-Origin-Opener-Policy: same-origin`
@@ -1239,11 +1242,11 @@ app.use((req, res, next) => {
 確保頁面上所有資源都是合法載入
 
 - COEP 可填入的值
-  - unsafe-none：預設值，沒限制
-  - require-corp：頁面上所有載入的資源，都必須有 CORP 這 header 存在（或 CORS），且是合法的
+  - `unsafe-none`：預設值，沒限制
+  - `require-corp`：頁面上所有載入的資源，都必須有 CORP 或 CORS header 存在，且是合法的
 - 範例：想將網站 `a.example.com` 變成 cross-rogin isolated state
   - 幫網站加上 header `Cross-Origin-Embedder-Policy: require-corp`
-  - 在網頁引入資源 `<img src="http://b.example.com/logo.jpg">`
+  - 網頁引入資源 `<img src="http://b.example.com/logo.jpg">`
   - 提供資源的 b 傳送正確 header
 
 <div class='pl-6'>
@@ -1251,14 +1254,13 @@ app.use((req, res, next) => {
 ```js
 app.use((req, res, next) => {
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-  next();
 });
 ```
 
 </div>
 
-- CORP 沒設定 與 設定 cross-origin 的差異
-  - CORP 有設定 cross-origin 才能通過 COEP `require-corp` 要求
+- CORP 沒設定 與 設定 `cross-origin` 的差異
+  - CORP 有設 `cross-origin` 才能通過 COEP `require-corp` 要求
 
 ---
 
@@ -1267,12 +1269,12 @@ app.use((req, res, next) => {
 為 same origin 加上更嚴格的 window 共享設定
 
 - COOP 目的：規範 window 跟 opener 間的關係
-  - 為何要規範? 用 `window.open` 開新網頁時，可操控新網頁的 location，新網頁也可用 `window.opener` 操控原網頁
+  - 為何要規範? 用 `window.open` 開新網頁時，可操控新網頁 location，新網頁也可用 `window.opener` 操控原網頁
 - COOP 可填入的值
-  - unsafe-none：預設值
-  - same-origin
-  - same-origin-allow-popups
-  - same-origin-plus-COEP
+  - `unsafe-none`：預設值
+  - `same-origin`
+  - `same-origin-allow-popups`
+  - `same-origin-plus-COEP`
 
 ---
 
@@ -1280,14 +1282,13 @@ app.use((req, res, next) => {
 
 為 same origin 加上更嚴格的 window 共享設定
 
-- same-origin 與 same-origin-allow-popups 的範例解釋
-
-  - 情境：網頁 A 用 `window.open` 開啟網頁 B
-    <div class='text-4 leading-tight'>
+- `same-origin` 與 `same-origin-allow-popups` 範例解釋
+  <div class='text-4 leading-6'>
+  情境：網頁 A 用 <code>window.open</code> 開啟網頁 B
 
     | **條件**                                                           | **存取限制**                                                                             |
     | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-    | AB 是 cross-origin                                                 | 瀏覽器限制：只能存取 `window.location` 或 `window.close` 方法<br>無法存取 DOM 或其他方法 |
+    | AB 是 cross-origin                                                 | 瀏覽器限制：只能存取 `window.location` 或 `window.close`，無法存取 DOM 或其他方法 |
     | AB 是 same-origin                                                  | 可互相存取幾乎完整的 `window`，包括 DOM                                                  |
     | AB 是 same-origin 且 A 加上 COOP header `same-origin`              | B 必須也有 COOP header `same-origin`，才能互相存取 `window`                              |
     | AB 是 same-origin 且 A 加上 COOP header `same-origin-allow-popups` | 若 B 的 COOP header 不是 `same-origin`，就可互相存取 `window`                            |
@@ -1302,13 +1303,13 @@ app.use((req, res, next) => {
 
 - 互相存取 window 的條件
   - 必須是 same-origin
-  - 是否能存取，取決於 COOP header 設定與值
+  - 是否能存取，取決於 COOP header
 - COOP header 的影響
   - 若設定但不符規則
     - `window.opener` 變為 null
     - 無法存取 `window.location`
   - 若未設定 COOP header
-    - Cross-origin 預設仍可存取 `window.location`
+    - cross-origin 預設仍可存取 `window.location`
 
 ---
 
@@ -1344,9 +1345,9 @@ layout: center
 
 # 章節回顧
 
-1. 什麼是 CORS misconfiguration? 請說明一個常見的錯誤設置方式及正確的設置方式
-2. 請解釋 COXX 系列 header 中的 CORB 和 CORP 有什麼差異? 它們各自解決什麼問題?
-3. 什麼是 cross-origin isolated state? 要如何啟用它，啟用後有什麼好處和限制?
+1. 什麼是 CORS misconfiguration？ 請說明一個常見的錯誤設置方式及正確的設置方式
+2. 請解釋 COXX 系列 header 中的 CORB 和 CORP 有什麼差異？ 它們各自解決什麼問題？
+3. 什麼是 cross-origin isolated state？ 要如何啟用它，啟用後有什麼好處和限制？
 
 ---
 
@@ -1356,12 +1357,12 @@ layout: center
 
 # 章節回顧
 
-1. 什麼是 CORS misconfiguration? 請說明一個常見的錯誤設置方式及正確的設置方式
+1. 什麼是 CORS misconfiguration？ 請說明一個常見的錯誤設置方式及正確的設置方式
 
-錯誤設置方式：直接將請求中的 Origin header 值設為 Access-Control-Allow-Origin 的值，這樣會允許任何來源存取 API。
+錯誤設置方式：直接將請求的 Origin header 值設為 `Access-Control-Allow-Origin` 的值，這樣會允許任何來源存取 API
 
 ```js
-// 錯誤設置
+// ⛔ 錯誤設置
 app.use((req, res, next) => {
   res.headers['Access-Control-Allow-Origin'] = req.headers['Origin'];
 });
@@ -1370,6 +1371,7 @@ app.use((req, res, next) => {
 正確設置方式：準備允許的 origin 清單，只允許清單內的 origin
 
 ```js
+// ✅ 正確設置
 const allowOrigins = ['https://example.com', 'https://buy.example.com'];
 app.use((req, res, next) => {
   const origin = req.headers['Origin'];
@@ -1387,15 +1389,15 @@ layout: center
 
 # 章節回顧
 
-2. 請解釋 COXX 系列 header 中的 CORB 和 CORP 有什麼差異? 它們各自解決什麼問題?
+2. 請解釋 COXX 系列 header 中的 CORB 和 CORP 有什麼差異？ 它們各自解決什麼問題？
 
 - CORB (Cross-Origin Read Blocking)
-  - 是瀏覽器的預設機制
-  - 主要用於阻擋不合理的資源載入，如用 `<img>` 載入 HTML
+  - 瀏覽器預設機制
+  - 用於阻擋不合理的資源載入，如用 `<img>` 載入 HTML
   - 主要保護 HTML、XML 和 JSON 類型的資源
 - CORP (Cross-Origin Resource Policy)
-  - 是一個 HTTP Response Header
-  - 讓資源擁有者可明確指定哪些來源可以載入該資源
+  - 一個 HTTP Response Header
+  - 讓資源擁有者可明確指定哪些來源可載入該資源
   - 可防止任何跨來源載入（包含圖片、影片等資源）
 
 ---
@@ -1413,10 +1415,10 @@ layout: center
   - `Cross-Origin-Opener-Policy: same-origin`
 - 好處
   - 可使用 `SharedArrayBuffer`
-  - `performance.now` 可提供更精確的時間
+  - `performance.now` 可提供更精確的結果
 - 限制
   - 頁面上所有跨來源資源都必須有適當的 CORP header 或 CORS 設置
-  - 需確保網站所有的跨來源資源存取都合法且
+  - 需確保網站所有的跨來源資源存取都合法
 
 ---
 
