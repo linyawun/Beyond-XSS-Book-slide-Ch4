@@ -79,11 +79,6 @@ glowOpacity: 0.3
 </div>
 
 <!--
-You can have `style` tag in markdown to override the style for the current page.
-Learn more: https://sli.dev/features/slide-scope-style
--->
-
-<!--
 Here is another comment.
 -->
 
@@ -590,8 +585,6 @@ domain 結構由右至左來看
       <p>6. If the surrounding agent's agent cluster's is origin-keyed is true, then return.</p>
       <p>7. Set this's origin's domain to the result of parsing the given value.</p>
     </div>
-  - 如：`alice.github.io` 執行 `document.domain = 'github.io'` 會出錯
-    - 錯誤原因：不符合步驟 5 registrable domain suffix 的檢查
 
 ---
 
@@ -1286,12 +1279,12 @@ app.use((req, res, next) => {
   <div class='text-4 leading-6'>
   情境：網頁 A 用 <code>window.open</code> 開啟網頁 B
 
-    | **條件**                                                           | **存取限制**                                                                             |
-    | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-    | AB 是 cross-origin                                                 | 瀏覽器限制：只能存取 `window.location` 或 `window.close`，無法存取 DOM 或其他方法 |
-    | AB 是 same-origin                                                  | 可互相存取幾乎完整的 `window`，包括 DOM                                                  |
-    | AB 是 same-origin 且 A 加上 COOP header `same-origin`              | B 必須也有 COOP header `same-origin`，才能互相存取 `window`                              |
-    | AB 是 same-origin 且 A 加上 COOP header `same-origin-allow-popups` | 若 B 的 COOP header 不是 `same-origin`，就可互相存取 `window`                            |
+  | **條件**                                                           | **存取限制**                                                                      |
+  | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+  | AB 是 cross-origin                                                 | 瀏覽器限制：只能存取 `window.location` 或 `window.close`，無法存取 DOM 或其他方法 |
+  | AB 是 same-origin                                                  | 可互相存取幾乎完整的 `window`，包括 DOM                                           |
+  | AB 是 same-origin 且 A 加上 COOP header `same-origin`              | B 必須也有 COOP header `same-origin`，才能互相存取 `window`                       |
+  | AB 是 same-origin 且 A 加上 COOP header `same-origin-allow-popups` | 若 B 的 COOP header 不是 `same-origin`，就可互相存取 `window`                     |
 
     </div>
 
