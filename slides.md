@@ -794,7 +794,7 @@ layout: center
   瀏覽器已發出 request、拿到 response 才發現沒有 'Access-Control-Allow-Origin' header
 <br>
 
-#### 💡 瀏覽器擋住的不是 request，而是 response <span class='text-xs opacity-60'>(只適用於簡單請求)</span>
+#### 💡 瀏覽器擋住的不是 request，而是 response <span class='text-xs opacity-60'>(只適用簡單請求)</span>
 
 - request 已到伺服器，瀏覽器也收到 response，只是瀏覽器不把結果給你
 - 小明的 request、文章 和 response?
@@ -1182,7 +1182,7 @@ app.use((req, res, next) => {
   - CORS：API 或資料間存取的協議，讓跨來源資料存取需要許可
   - CORP：資源（如 `<img>`）間的存取協議，讓任何跨來源資源載入需要許可
     - 任何跨來源不含 iframe
-- CORP 阻止「任何跨來源載入」的目的
+- CORP 阻止任何跨來源載入的目的
   - 安全性
   - 阻止別人載入你的資源
     - 擁有資源者可避免支付對應流量與費用
