@@ -907,7 +907,7 @@ app.use((req, res, next) => {
 # 跨來源的安全性問題：CORS misconfiguration
 
 - 動態調整錯誤示範：直接放入 request header 內的 origin
-  - 可能問題：寫個網站 `https://fake-example.com` 並讓使用者在 `example.com` 登入狀態下點這網站，可偷到使用者資料
+  - 可能問題：寫個網站 `https://fake-example.com` 並讓使用者在 `example.com` 登入狀態點這網站，可偷到使用者資料
     - 影響範圍：視網站 API 而定
     - 攻擊成立的前提
       - CORS header 錯誤設置
@@ -1107,6 +1107,7 @@ run(x);
 
 阻擋不合理的跨來源資源載入
 
+- 防禦 Spectre：需避免其他網站資料出現在同一 process 下
 - 其他網站的資料會如何出現？跨來源存取資源的方式如：
   - `fetch` 或 `xhr`
     - 已被 CORS 控管
@@ -1127,13 +1128,12 @@ run(x);
 
 - CORB 是什麼？
   - 如果想讀的資料類型不合理，就不需進 render process，把結果丟掉即可
-- 資料類型不合理是什麼意思？
+- 資料類型不合理例如：
   - 用 `<img>` 載入 MIME type 是 `application/json` 的 JSON 檔
   - 用 `<script>` 載入 HTML
 - CORB 主要保護的資料類型：HTML、XML 跟 JSON
-  - 如何判斷這三種類型？
-    - Chrome 根據內容探測（<a href='https://mimesniff.spec.whatwg.org/' target='_blank'>sniffing</a>）檔案類型，決定是否套用 CORB
-      - 若確定伺服器給的 content type 正確，可傳 response header `X-Content-Type-Options: nosniff`，Chrome 會直接用給定的 content type
+  - Chrome 根據內容探測（<a href='https://mimesniff.spec.whatwg.org/' target='_blank'>sniffing</a>）檔案類型，決定是否套用 CORB
+    - 若確定伺服器給的 content type 正確，可傳 response header `X-Content-Type-Options: nosniff`，Chrome 會直接用給定的 content type
 
 ---
 
