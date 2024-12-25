@@ -76,7 +76,6 @@ glowOpacity: 0.3
   <div><a href="https://medium.com/@linyawun031" target="_blank" class="border-none! font-300">Monica</a></div>
 </div>
 
-
 ---
 
 ```yaml
@@ -86,10 +85,8 @@ glow: bottom
 
 # 前次回顧：CSS injection 與只有 HTML 的攻擊方式
 
-1. CSS injection 是什麼?
-<div v-click='1' opacity-80>
-攻擊者在網頁插入 style 標籤，放入惡意 CSS，就可偷到一些有敏感屬性的資料
-</div>
+1. CSS injection 是什麼? <br>
+   攻擊者在網頁插入 style 標籤，放入惡意 CSS，就可偷到一些有敏感屬性的資料
 
 ---
 
@@ -101,15 +98,11 @@ layout: center
 
 2. CSS injection 怎麼達到攻擊?
 
-<div v-click='1' opacity-80>
-
 - 簡單版： CSS selector 選特定元素，搭配 background 屬性發請求
 - 進階版
   - Unicode Range
   - 字體高度 + first-line + scrollbar
   - 連字 + scrollbar
-
-</div>
 
 ---
 
@@ -120,14 +113,12 @@ layout: center
 # 前次回顧：CSS injection 與只有 HTML 的攻擊方式
 
 3. 只有 HTML 的攻擊方式有哪些?
-<div v-click='1' opacity-80>
 
 - 反向標籤劫持(Reverse tabnabbing)
 - meta 標籤重新導向
 - 透過 iframe 的攻擊
 - 透過表單的攻擊
 - 懸掛標籤注入(Dangling Markup injection)
-</div>
 
 ---
 
@@ -208,7 +199,6 @@ domain 結構由右至左來看
   <div class='text-right'><a class='text-xs opacity-50 border-none!' href="https://en.wikipedia.org/wiki/Domain_name" target="_blank">圖片來源</a></div>
 </div>
 </div>
-
 
 ---
 
@@ -303,7 +293,8 @@ domain 結構由右至左來看
     - `https://huli.tw/*` 才會和它 same origin
   - `https://blog.huli.tw` origin 是 `https://blog.huli.tw`
     - 和 `https://huli.tw` host 不同，不是 same origin -->
-- same domain 在規範的定義和前面簡單版解釋差在哪？
+
+- same origin 在規範的定義和前面簡單版解釋差在哪？
   - origin 定義
     - 多了 opaque origin 這種 origin
     - tuple origin 多了 domain 元素
@@ -381,17 +372,21 @@ domain 結構由右至左來看
 之 registrable domain 是什麼
 
 - registrable domain 定義
-  <div class='quote'>
-    <p>URL <a href="https://url.spec.whatwg.org/#host-registrable-domain" target="_blank">spec</a>: "A host’s registrable domain is a domain formed by the most specific public suffix, along with the domain label immediately preceding it, if any"<span class='text-#2f96ad text-xs ml-2'><Link to='additionalInfo' class='border-none!'>[2]</Link></span></p> 
-  </div>
+    <div class='quote'>
+      <p>URL <a href="https://url.spec.whatwg.org/#host-registrable-domain" target="_blank">spec</a>: "A host’s registrable domain is a domain formed by the most specific public suffix, along with the domain label immediately preceding it, if any"<span class='text-#2f96ad text-xs ml-2'><Link to='additionalInfo' class='border-none!'>[2]</Link></span></p> 
+    </div>
 
   - 舉例
+    <div class='text-4 leading-6'>
 
-    | Host            | Registrable Domain |
-    | --------------- | ------------------ |
-    | `blog.huli.tw`  | `huli.tw`          |
-    | `huli.tw`       | `huli.tw`          |
-    | `bob.github.io` | `bob.github.io`    |
+    | Host              | Registrable Domain |
+    | ----------------- | ------------------ |
+    | `blog.huli.tw`    | `huli.tw`          |
+    | `huli.tw`         | `huli.tw`          |
+    | `bob.github.io`   | `bob.github.io`    |
+    | `alice.github.io` | `alice.github.io`  |
+
+    </div>
 
 ---
 
@@ -487,7 +482,7 @@ domain 結構由右至左來看
 
 # 神奇的 document.domain
 
-- `document.domain` 之 same site 變 same origin 之術
+- `document.domain` 的 same site 變 same origin 之術
   - 書中 demo 用 `document.domain` 讓 same site 頁面（`alice.example.com` 和 `bob.example.com`）變 same origin
     - 原先因為不是 same origin，無法存取對方 DOM
     - 兩頁面 `document.domain` 設為相同的 `example.com` 後，變成 same origin，可互相存取 DOM
@@ -544,19 +539,16 @@ domain 結構由右至左來看
     - 都是 opaque origin
     - scheme 和 domain 都相同，且 <span v-mark.red='1'>domain 不是 null</span>
     - 兩個是 same origin，且 <span v-mark.red='2'>domain 都是 null</span> <br>
-      (後兩者說的 domain 就是 tuple origin 的 domain 屬性)
+      <span class='text-sm opacity-80'>(domain 指的是 tuple origin 的 domain 屬性)</span>
+  - 怎麼改 tuple origin 的 domain 屬性？ `document.domain`
 
 <!-- 觀察
 兩網頁都有設置 domain 或都沒有，才有可能是 same origin-domain
-如果兩網頁都有設 domain，same origin-domain 就不檢查 port -->
+如果兩網頁都有設 domain，same origin-domain 就不檢查 port
 
----
+`document.domain` 是用來改 tuple origin 的 domain 屬性，所以在 huli 的 demo 中，`http://alice.example.com:5555` 跟 `http://bob.example.com:5555` 都用 document.domain 將自己的 domain 改成 `example.com`，以此達到 same origin-domain
 
-# 神奇的 document.domain
-
-- `document.domain` 是用來改 tuple origin 的 domain 屬性
-- `http://alice.example.com:5555` 跟 `http://bob.example.com:5555` 都將自己的 domain 改成 `example.com`
-  - 符合「If A and B's schemes are identical, and their domains are identical and non-null, then return true.」，因此是 same origin-domain
+ -->
 
 ---
 
@@ -569,9 +561,8 @@ domain 結構由右至左來看
 - Chrome 對 `document.domain` 的措施
   - 2022 年<a href='https://developer.chrome.com/blog/immutable-document-domain/' target='_blank'>指出</a>最快從 Chrome 101 版開始，停止支援更改 `document.domain`
   - 2023 年<a href='https://developer.chrome.com/blog/document-domain-setter-deprecation' target='_blank'>宣布</a> `document.domain` 的淘汰將於 Chrome 115 生效
-- `document.domain 替代方案
+- `document.domain` 替代方案
   - `postMessage` 或 `Channel Messaging API`
-  - 還是想用 `document.domain`：在 response header 帶上 `Origin-Agent-Cluster: ?0`
 
 ---
 
@@ -619,7 +610,7 @@ A: https://blog.example.com:443/posts
 B: https://blog.example.com/about
 ```
 
-是 same origin，兩個 scheme(https)、host(blog.example.com) 相同，雖然 B 沒有明確指定 port，但 https 預設 port 為 443，兩者 port 也相同。
+是 same origin，兩個 scheme(`https`)、host(`blog.example.com`) 相同，雖然 B 沒有明確指定 port，但 `https` 預設 port 為 `443`，兩者 port 也相同
 
 ---
 
@@ -638,8 +629,8 @@ layout: center
 ```
 
 1. 不是 same site，`github.io` 是 public suffix，所以 `alice.github.io` 和 `bob.github.io` 的 registrable domain 不同
-2. 不是 same site，因為 scheme 不同 (https 和 http)
-3. 是 same site，因為它們有相同的 scheme (https)，且 registrable domain 都是 example.com
+2. 不是 same site，因為 scheme 不同 (`https` 和 `http`)
+3. 是 same site，因為它們有相同的 scheme (`https`)，且 registrable domain 都是 `example.com`
 
 ---
 
@@ -802,6 +793,14 @@ layout: center
 
 安全性，避免惡意網站存取其他來源的敏感資料；CORS 是一種可跨來源交換網站資料的機制，後端透過`Access-Control-Allow-Origin` header 告知瀏覽器哪個 origin 可存取 response
 
+---
+
+```yaml
+layout: center
+```
+
+# 章節回顧
+
 2. 在 CORS 情境下，簡單請求和非簡單請求有何區別？瀏覽器如何處理這兩種請求？
 
 簡單請求是指符合某些標準（如：用 `GET` 或 `POST` 方法並帶有特定 header）的請求，直接傳送到伺服器。若伺服器沒有回應適當的 `Access-Control-Allow-Origin` header，瀏覽器會阻止我們用 JavaScript 存取 response。非簡單請求涉及一個 preflight request，瀏覽器會先發送 preflight request 來檢查實際請求是否安全可發送，若 preflight request 沒通過，就不會發實際請求。
@@ -813,6 +812,7 @@ layout: center
 ---
 
 # CORS misconfiguration
+
 錯誤 CORS 設置引起的漏洞
 
 - 若跨來源非簡單請求想帶上 cookie，`Access-Control-Allow-Origin` 就要指定單一 origin
@@ -834,6 +834,7 @@ app.use((req, res, next) => {
 ---
 
 # CORS misconfiguration
+
 錯誤 CORS 設置引起的漏洞
 
 - ⛔ 動態調整錯誤示範：直接放入 request header 內的 origin
@@ -865,6 +866,7 @@ fetch('https://api.example.com/me', {
 ---
 
 # CORS misconfiguration
+
 錯誤 CORS 設置引起的漏洞
 
 - ✅ 動態調整 CORS 的正確做法
@@ -893,6 +895,7 @@ app.use((req, res, next) => {
 ---
 
 # CORS misconfiguration
+
 錯誤 CORS 設置引起的漏洞
 
 - 實際案例
@@ -986,7 +989,6 @@ run(x);
   - CPU 丟棄結果後我們也拿不到，但它有留下線索 🔺
     - 線索：預測執行時，結果會被放入 CPU cache
   - 攻擊者可用存取時間判斷資料是否在 CPU cache 內，因讀取 CPU cache 內的資料較快
-
 
 <div class='note-block mt-40'>
 
@@ -1212,7 +1214,7 @@ app.use((req, res, next) => {
 
 為 same origin 加上更嚴格的 window 共享設定
 
-- `same-origin` 與 `same-origin-allow-popups` 
+- `same-origin` 與 `same-origin-allow-popups`
   <div class='text-4 leading-6'>
   情境：網頁 A 用 <code>window.open</code> 開啟網頁 B
 
@@ -1249,7 +1251,7 @@ app.use((req, res, next) => {
   - `Cross-Origin-Embedder-Policy: require-corp`
   - `Cross-Origin-Opener-Policy: same-origin`
 - cross-origin isolated state 代表什麼？
-  - 頁面上所有跨來源資源你都有權限存取 
+  - 頁面上所有跨來源資源你都有權限存取
 - 進入 cross-origin isolated state 後…
   - 使用以下功能的限制較少 <span class='text-sm opacity-80'>(<a href='https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated' target='_blank'>ref</a>)</span>
     - `SharedArrayBuffer` 可用 `Window.postMessage` 或 `MessagePort.postMessage` 創建或傳遞
@@ -1260,11 +1262,11 @@ app.use((req, res, next) => {
 
 # COXX 系列 小結
 
-|                                         | **類型**             | **目的**                                                 |
-| --------------------------------------- | -------------------- | -------------------------------------------------------- |
-| **CORB** (Cross-Origin Read Blocking)   | 瀏覽器預設機制       | 防止載入不合理資源，例如：用 `<img>` 載入 HTML           |
+|                                         | **類型**             | **目的**                                               |
+| --------------------------------------- | -------------------- | ------------------------------------------------------ |
+| **CORB** (Cross-Origin Read Blocking)   | 瀏覽器預設機制       | 防止載入不合理資源，例如：用 `<img>` 載入 HTML         |
 | **CORP** (Cross-Origin Resource Policy) | HTTP Response Header | 決定資源可被誰載入，防止跨來源載入圖片、影片或其他資源 |
-| **COEP** (Cross-Origin-Embedder-Policy) | HTTP Response Header | 確保頁面上所有資源都是合法載入                           |
+| **COEP** (Cross-Origin-Embedder-Policy) | HTTP Response Header | 確保頁面上所有資源都是合法載入                         |
 | **COOP** (Cross-Origin-Opener-Policy)   | HTTP Response Header | 為 same-origin 加上更嚴格的 `window` 共享設定          |
 
 ---

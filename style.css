@@ -21,7 +21,7 @@
 .slidev-page h4 {
   font-weight: 600;
 }
-.slidev-layout .quote{
+.slidev-layout .quote {
   @apply opacity-60 text-sm border-l-2 border-gray-500 pl-4
   line-height: 1.25rem;
   p {
@@ -56,8 +56,8 @@ img::-moz-selection {
 }
 
 .note-block {
-  --uno: mt-4 pa3.75 bg-#2f96ad text-#5b6b6e dark:bg-#322c4f dark:text-#d9d6e1
-    border-rounded-2 font-size-3.65;
+  --uno: mt-4 pa3.75 bg-#2f96ad text-#5b6b6e dark: bg-#322c4f dark: text-#eae8f0
+    border-rounded-2 font-size-3.65 opacity-80;
 }
 
 div[class*='language-'],
