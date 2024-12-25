@@ -74,13 +74,8 @@ glowOpacity: 0.3
 <div my-10 w-min flex="~ gap-1" items-center justify-center>
   <mdi:medium op50 ma text-xl/>
   <div><a href="https://medium.com/@linyawun031" target="_blank" class="border-none! font-300">Monica</a></div>
-  <!-- <mdi:github op50 ma text-xl ml-4/>
-  <div><a href="https://github.com/linyawun" target="_blank" class="border-none! font-300">Monica</a></div> -->
 </div>
 
-<!--
-Here is another comment.
--->
 
 ---
 
@@ -168,7 +163,6 @@ layout: center
     - IP 地址： 代表伺服器實際位置，如 `192.168.1.1`
   - port：指定伺服器接受請求的埠號，沒顯示則使用協議預設 port
     - `http` 默認是 `80`，`https` 默認是 `443`
-    - 如 `http://www.example.com` 使用默認 port `80`
   - path：資源在伺服器上的路徑，如 `/index.html`
   <div class='bg-light-800 rounded-lg p-2 mt-4'>
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/URI_syntax_diagram.svg/2136px-URI_syntax_diagram.svg.png" alt="URL 結構" />
@@ -185,8 +179,8 @@ domain 結構由右至左來看
    - domain 最右端，隱式表示為 `.`
    - 如 `www.example.com.` 真正 domain 全稱是 `www.example.com.root`
 2. 頂級域（Top-Level Domain, TLD）
-   - 位於根域左側，通常根域隱藏，因此通常 TLD 是網址最後一部分
-   - 頂級網域可分為
+   - 位於根域左側
+   - 可分為
      - 一般性頂級網域（general TLD, gTLD）：表示特定用途或類型，如 `.com`、`.net`
      - 國別頂級網域（country-code TLD, ccTLD）：表示特定國家或地區的域名，如 `.tw`、`.jp`
 
@@ -215,9 +209,6 @@ domain 結構由右至左來看
 </div>
 </div>
 
-<div class='text-sm opacity-60 mt-30'>
-  Public suffix、Registrable domain、eTLD、eTLD+1 後面會提
-</div>
 
 ---
 
@@ -307,11 +298,11 @@ domain 結構由右至左來看
 
 # 細究 same origin
 
-- same origin 舉例
+<!-- - same origin 舉例
   - `https://huli.tw/api` origin 是 `https://huli.tw`
     - `https://huli.tw/*` 才會和它 same origin
   - `https://blog.huli.tw` origin 是 `https://blog.huli.tw`
-    - 和 `https://huli.tw` host 不同，不是 same origin
+    - 和 `https://huli.tw` host 不同，不是 same origin -->
 - same domain 在規範的定義和前面簡單版解釋差在哪？
   - origin 定義
     - 多了 opaque origin 這種 origin
@@ -394,7 +385,7 @@ domain 結構由右至左來看
     <p>URL <a href="https://url.spec.whatwg.org/#host-registrable-domain" target="_blank">spec</a>: "A host’s registrable domain is a domain formed by the most specific public suffix, along with the domain label immediately preceding it, if any"<span class='text-#2f96ad text-xs ml-2'><Link to='additionalInfo' class='border-none!'>[2]</Link></span></p> 
   </div>
 
-  - registrable domain 舉例
+  - 舉例
 
     | Host            | Registrable Domain |
     | --------------- | ------------------ |
@@ -423,8 +414,8 @@ domain 結構由右至左來看
 之 registrable domain 是什麼
 
 - public suffix：一個人工維護的<a href='https://publicsuffix.org/list/public_suffix_list.dat' target='_blank'>清單</a>，有「不想被當作是同個網站的列表」
-  - public suffix 如：`github.io`、`com.tw`、`herokuapp.com`
-  - public suffix 也稱為 eTLD（effective Top-Level-Domain）<span class='text-sm opacity-80'>(<a href='https://blog.kalan.dev/2021-11-09-url-and-samesite' target='_blank'>ref</a>)</span>
+  - 如：`github.io`、`com.tw`、`herokuapp.com`
+  - 也稱為 eTLD（effective Top-Level-Domain）<span class='text-sm opacity-80'>(<a href='https://blog.kalan.dev/2021-11-09-url-and-samesite' target='_blank'>ref</a>)</span>
 - 瀏覽器參考 public suffix 後，才決定 registrable domain 是什麼
   - registrable domain 不同，依 spec 定義，不是 same site
     | Host | Public Suffix | Registrable Domain |
@@ -523,7 +514,7 @@ domain 結構由右至左來看
 
 # 神奇的 document.domain
 
-- 兩頁面改 `document.domain` 後變成 same origin 的原因
+- 兩頁面改 `document.domain` 後變 same origin 的原因
 
   - 嚴格來說改 `document.domain` 是讓兩網站變成 same origin-domain
   - 某些檢查看 same origin-domain，非 same origin <span class='text-sm opacity-80'>(<a href='https://html.spec.whatwg.org/multipage/document-sequences.html#concept-bcc-content-document' target='_blank'>ref</a>)</span>
@@ -974,8 +965,11 @@ run(x);
     - 若跟預測相同：皆大歡喜
     - 若跟預測不同：把計算的結果丟掉
 
-<div class='text-sm opacity-80 pl-6 mt-4'>
-Branch Prediction 是「預測」分支的走向；Speculative Execution 是「基於預測結果」執行分支中的程式碼
+<div class='note-block mt-26'>
+
+- Branch Prediction：預測分支的走向
+- Speculative Execution：基於預測結果執行分支中的程式碼
+
 </div>
 
 ---
@@ -987,9 +981,15 @@ Branch Prediction 是「預測」分支的走向；Speculative Execution 是「�
 - Branch Prediction 和 Speculative Execution 有何問題？
   - CPU 丟棄結果後我們也拿不到，但它有留下線索 🔺
     - 線索：預測執行時，結果會被放入 CPU cache
-  - 如何判斷資料是否在 CPU cache 內？
-    - 以存取時間判斷，讀取 CPU cache 內資料較快
-  - Side-channel attack：攻擊者可利用存取時間（timing attack）來推測 CPU cache 內的資料
+  - 攻擊者可用存取時間判斷資料是否在 CPU cache 內，因讀取 CPU cache 內的資料較快
+
+
+<div class='note-block mt-40'>
+
+- Side-channel attack：以其他線索來得知資訊的攻擊方法
+- Timing attack：透過時間（讀取時間）來判斷資訊的攻擊方法
+
+</div>
 
 ---
 
@@ -1208,7 +1208,7 @@ app.use((req, res, next) => {
 
 為 same origin 加上更嚴格的 window 共享設定
 
-- `same-origin` 與 `same-origin-allow-popups` 範例解釋
+- `same-origin` 與 `same-origin-allow-popups` 
   <div class='text-4 leading-6'>
   情境：網頁 A 用 <code>window.open</code> 開啟網頁 B
 
@@ -1245,7 +1245,7 @@ app.use((req, res, next) => {
   - `Cross-Origin-Embedder-Policy: require-corp`
   - `Cross-Origin-Opener-Policy: same-origin`
 - cross-origin isolated state 代表什麼？
-  - 頁面上所有跨來源資源你都有權限存取 (你請求的資源，對方 server 需回應對應 header 來允許)
+  - 頁面上所有跨來源資源你都有權限存取 
 - 進入 cross-origin isolated state 後…
   - 使用以下功能的限制較少 <span class='text-sm opacity-80'>(<a href='https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated' target='_blank'>ref</a>)</span>
     - `SharedArrayBuffer` 可用 `Window.postMessage` 或 `MessagePort.postMessage` 創建或傳遞
@@ -1259,9 +1259,9 @@ app.use((req, res, next) => {
 |                                         | **類型**             | **目的**                                                 |
 | --------------------------------------- | -------------------- | -------------------------------------------------------- |
 | **CORB** (Cross-Origin Read Blocking)   | 瀏覽器預設機制       | 防止載入不合理資源，例如：用 `<img>` 載入 HTML           |
-| **CORP** (Cross-Origin Resource Policy) | HTTP Response Header | 決定資源可以被誰載入，防止跨來源載入圖片、影片或其他資源 |
+| **CORP** (Cross-Origin Resource Policy) | HTTP Response Header | 決定資源可被誰載入，防止跨來源載入圖片、影片或其他資源 |
 | **COEP** (Cross-Origin-Embedder-Policy) | HTTP Response Header | 確保頁面上所有資源都是合法載入                           |
-| **COOP** (Cross-Origin-Opener-Policy)   | HTTP Response Header | 為同 same-origin 加上更嚴格的 `window` 共享設定          |
+| **COOP** (Cross-Origin-Opener-Policy)   | HTTP Response Header | 為 same-origin 加上更嚴格的 `window` 共享設定          |
 
 ---
 

@@ -55,6 +55,11 @@ img::-moz-selection {
   background: transparent;
 }
 
+.note-block {
+  --uno: mt-4 pa3.75 bg-#2f96ad text-#5b6b6e dark:bg-#322c4f dark:text-#d9d6e1
+    border-rounded-2 font-size-3.65;
+}
+
 div[class*='language-'],
 pre[class*='language-'],
 code[class*='language-'] {
