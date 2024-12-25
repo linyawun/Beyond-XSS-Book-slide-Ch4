@@ -496,77 +496,10 @@ domain 結構由右至左來看
 
 # 神奇的 document.domain
 
-- `document.domain` demo
-  - Step 1. 修改本機 `/etc/hosts`，讓兩個網址都連到 localhost
-    ```
-    127.0.0.1   alice.example.com
-    127.0.0.1   bob.example.com
-    ```
-  - Step 2. 寫個 server 在 `localhost:5555` 運行
-    - 頁面功能：載入 iframe、讀取 iframe 內 DOM 資料、改變 `document.domain`
-
-<div class="ml-12">
-```html {*}{maxHeight:'200px'}
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content ="width=device-width, initial-scale=1" />
-  </head>
-  <body>
-    <h1></h1>
-    <h2></h2>
-    <button onclick="load('alice')">load alice iframe</button>
-    <button onclick="load('bob')">load bob iframe</button>
-    <button onclick="access()">access iframe content</button>
-    <button onclick="update()">update domain</button>
-    <br>
-    <br>
-  </body>
-  <script>
-    const name = document.domain.replace('.example.com', '')
-    document.querySelector('h1').innerText = name
-    document.querySelector('h2').innerText = Math.random()
-
-    function load(name) {
-      const iframe = document.createElement('iframe')
-      iframe.src = 'http://' + name + '.example.com:5555'
-      document.body.appendChild(iframe)
-    }
-
-    function access() {
-      const win = document.querySelector('iframe').contentWindow
-      alert('secret:' + win.document.querySelector('h2').innerText)
-    }
-
-    function update() {
-      document.domain = 'example.com'
-    }
-
-  </script>
-</html>
-```
-</div>
-
----
-
-# 神奇的 document.domain
-
-- `document.domain` demo
-  - Step 3. 開啟 `http://alice.example.com:5555`，點「load bob iframe」載入 `http://bob.example.com:5555` iframe，再按 alice 頁面的 「access iframe content」
-    - 錯誤原因：要跨越 iframe 存取 DOM，必須是 same origin
-      <img src='https://aszx87410.github.io/beyond-xss/assets/images/20-04-290308aa6bce3f68805c523b6df75761.png' alt='access iframe content fail' class='w-[450px]' />
-
----
-
-# 神奇的 document.domain
-
-- `document.domain` demo
-  - Step 4. 按下 alice 和 bob 頁面的「update domain」，再按 alice 頁面的「access iframe content」
-    - 將 `http://alice.example.com:5555` 跟 `http://bob.example.com:5555` 從 cross origin 變成 same origin
-    - 成功取得 bob 頁面資料 <br>
-      -> same site 變成 same origin
-      <img src='https://aszx87410.github.io/beyond-xss/assets/images/20-05-3b2e6e0865aa2cd1c254c8b23649dc9b.png' alt='access iframe content success' class='w-[300px]' />
+- `document.domain` 之 same site 變 same origin 之術
+  - 書中 demo 用 `document.domain` 讓 same site 頁面（`alice.example.com` 和 `bob.example.com`）變 same origin
+    - 原先因為不是 same origin，無法存取對方 DOM
+    - 兩頁面 `document.domain` 設為相同的 `example.com` 後，變成 same origin，可互相存取 DOM
 
 ---
 
@@ -632,7 +565,7 @@ domain 結構由右至左來看
 
 - `document.domain` 是用來改 tuple origin 的 domain 屬性
 - `http://alice.example.com:5555` 跟 `http://bob.example.com:5555` 都將自己的 domain 改成 `example.com`
-  - 符合「If A and B's schemes are identical, and their domains are identical and non-null, then return true.」判斷，因此是 same origin-domain
+  - 符合「If A and B's schemes are identical, and their domains are identical and non-null, then return true.」，因此是 same origin-domain
 
 ---
 
@@ -643,9 +576,9 @@ domain 結構由右至左來看
   - 保留原因：相容性
   - 可能問題：subdomain 有 XSS 漏洞時，影響範圍可擴大
 - Chrome 對 `document.domain` 的措施
-  - 2022 年<a href='https://developer.chrome.com/blog/immutable-document-domain/' target='_blank'>指出</a>最快從 Chrome 101 版開始，停止支援更改 document.domain
+  - 2022 年<a href='https://developer.chrome.com/blog/immutable-document-domain/' target='_blank'>指出</a>最快從 Chrome 101 版開始，停止支援更改 `document.domain`
   - 2023 年<a href='https://developer.chrome.com/blog/document-domain-setter-deprecation' target='_blank'>宣布</a> `document.domain` 的淘汰將於 Chrome 115 生效
-- document.domain 替代方案
+- `document.domain 替代方案
   - `postMessage` 或 `Channel Messaging API`
   - 還是想用 `document.domain`：在 response header 帶上 `Origin-Agent-Cluster: ?0`
 
@@ -884,11 +817,12 @@ layout: center
 
 ---
 
-# 跨來源的安全性問題：CORS misconfiguration
+# CORS misconfiguration
+錯誤 CORS 設置引起的漏洞
 
 - 若跨來源非簡單請求想帶上 cookie，`Access-Control-Allow-Origin` 就要指定單一 origin
   - 若多個 origin 都要存取 API，要動態調整 `Access-Control-Allow-Origin` 裡的 origin
-- 動態調整錯誤示範：直接放入 request header 內的 origin
+- ⛔ 動態調整錯誤示範：直接放入 request header 內的 origin
   - -> 任一 origin 都能通過 CORS
 
 <div class='pl-6'>
@@ -904,19 +838,20 @@ app.use((req, res, next) => {
 
 ---
 
-# 跨來源的安全性問題：CORS misconfiguration
+# CORS misconfiguration
+錯誤 CORS 設置引起的漏洞
 
-- 動態調整錯誤示範：直接放入 request header 內的 origin
-  - 可能問題：寫個網站 `https://fake-example.com` 並讓使用者在 `example.com` 登入狀態點這網站，可偷到使用者資料
+- ⛔ 動態調整錯誤示範：直接放入 request header 內的 origin
+  - 問題：寫個網站 `https://fake-example.com` 並讓使用者在 `example.com` 登入狀態點這網站，可偷到使用者資料
     - 影響範圍：視網站 API 而定
-    - 攻擊成立的前提
+    - 攻擊成立前提
       - CORS header 錯誤設置
       - 網站用 cookie 做身份驗證，且沒設 SameSite
       - 使用者主動點擊網站且是登入狀態
 
 <div class='pl-12'>
 
-```js {*}{maxHeight:'150px'}
+```js {*}{maxHeight:'100px'}
 // fake-example 網站寫這段 script
 // 用 api 去使用者資料，且帶上 cookie (若有設定 SameSite cookie，攻擊會失效，因 cookie 帶不上去)
 fetch('https://api.example.com/me', {
@@ -926,7 +861,6 @@ fetch('https://api.example.com/me', {
   .then((res) => {
     // 伺服器認可 https://fake-example.com 是合格 origin，fake-example 網站也可拿到使用者資料，可傳送到自己 server
     console.log(res);
-    // 把使用者導回真正的網站
     window.location = 'https://example.com';
   });
 ```
@@ -935,10 +869,10 @@ fetch('https://api.example.com/me', {
 
 ---
 
-# 跨來源的安全性問題：CORS misconfiguration
+# CORS misconfiguration
+錯誤 CORS 設置引起的漏洞
 
-- 錯誤 CORS 設置引起的漏洞稱為 CORS misconfiguration
-- 動態調整 CORS 的正確做法
+- ✅ 動態調整 CORS 的正確做法
   - 準備允許的 origin 清單，清單內的才通過
   - 設 sameSite cookie
 
@@ -963,7 +897,8 @@ app.use((req, res, next) => {
 
 ---
 
-# 跨來源的安全性問題：CORS misconfiguration
+# CORS misconfiguration
+錯誤 CORS 設置引起的漏洞
 
 - 實際案例
   - 2016 年 Jordan Milne 找到的 JetBrain IDE 漏洞 <span class='text-sm opacity-80'>(<a href='https://blog.saynotolinux.com/blog/2016/08/15/jetbrains-ide-remote-code-execution-and-local-file-disclosure-vulnerability-analysis/' target='_blank'>ref</a>)</span>
@@ -1107,7 +1042,7 @@ run(x);
 
 阻擋不合理的跨來源資源載入
 
-- 防禦 Spectre：需避免其他網站資料出現在同一 process 下
+- 防禦 Spectre：避免其他網站資料出現在同一 process 下
 - 其他網站的資料會如何出現？跨來源存取資源的方式如：
   - `fetch` 或 `xhr`
     - 已被 CORS 控管
@@ -1116,8 +1051,8 @@ run(x);
     - 可載入機密資料如 `<img src="https://bank.com/secret.json">`
     - 限制：無法用 JavaScript 讀取
     - Chrome 運作機制
-      - 下載檔案時，無法確定是否為符合標籤的檔案類型（e.g. 不確定它是否為圖片）
-      - 下載後交由 render process 處理，發現格式錯誤才觸發載入錯誤
+      - 下載時無法確定是否為符合標籤的檔案類型
+      - 交由 render process 處理後發現格式錯誤才觸發載入錯誤
     - 問題：Spectre 只要在同一 process 就可存取，即使進入 render process 也能讀取
 
 ---
@@ -1210,7 +1145,6 @@ app.use((req, res, next) => {
 - Site Isolation
   - 行為：將不同網站（site）資源放在不同 process
     - 不同網站定義：和 same site 的 site 定義相同，same site 同 process，反之隔離
-  - 隔離對象：process
   - 目的：即使有 Spectre 攻擊也讀不到其他網站的資料
   - 使用方式：Chrome 預設啟用
   - 缺點：使用的記憶體變多
@@ -1222,7 +1156,6 @@ app.use((req, res, next) => {
 - cross-origin isolated state
   - 行為：將不同網站（origin）資源放在不同 browsing context group
     - 不同網站定義：和 same origin 的 origin 定義相同，same origin 同 browsing context group，反之隔離
-  - 隔離對象：browsing context group
   - 設置前提：確認自己網站的所有跨來源存取都合法、有權限
   - 使用方式：在網頁設這兩個 header
     - `Cross-Origin-Embedder-Policy: require-corp`
