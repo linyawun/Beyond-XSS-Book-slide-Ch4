@@ -66,7 +66,7 @@ glowOpacity: 0.3
 
 - 一年多經驗的前端工程師 <br>
 - 常用技術：React、Next.js <br>
-- 興趣：聽音樂、看漫畫、看小說 <br>
+- 興趣：聽音樂、看漫畫、看小說、偶爾看劇 <br>
 - 想學的很多，但學得很慢...
 
 </div>
@@ -718,13 +718,17 @@ layout: center
   瀏覽器已發出 request、拿到 response 才發現沒有 'Access-Control-Allow-Origin' header
 <br>
 
-#### 💡 瀏覽器擋住的不是 request，而是 response <span class='text-xs opacity-60'>(只適用簡單請求)</span>
+<div v-click='1'>
+
+#### 💡 瀏覽器擋住的不是 request，而是 response <span class='text-sm opacity-60 ml-2'>(只適用簡單請求)</span>
 
 - request 已到伺服器，瀏覽器也收到 response，只是瀏覽器不把結果給你
 - 小明的 request、文章 和 response?
   - request：已經到 server
   - 文章：已經被刪除
   - response：瀏覽器拿到了，但它不給小明
+
+</div>
 
 ---
 
@@ -1352,11 +1356,11 @@ layout: center
 routeAlias: additionalInfo
 ```
 
-# 補充
+# 備註
 
-- \[1\]：2024/12 的 <a href='https://html.spec.whatwg.org/multipage/browsers.html#sites' target='_blank'>spec</a> 中，same site 演算法敘述有更改
-- \[2\]：2024/12 的 <a href='https://url.spec.whatwg.org/#host-registrable-domain' target='_blank'>spec</a> 中，registrable domain 敘述有更改
-- \[3\]：2024/12 的 <a href='https://html.spec.whatwg.org/multipage/browsers.html#origin' target='_blank'>spec</a> 中，same origin-domain 演算法有更改
+- <Link to='17' class='border-none! text-#2f96ad'>[1]</Link>：2024 年 12 月查找 <a href='https://html.spec.whatwg.org/multipage/browsers.html#sites' target='_blank'>spec</a> 時，發現 same site 演算法敘述有改。但意思應該不變，此處引用和書中相同
+- <Link to='20' class='border-none! text-#2f96ad'>[2]</Link>：2024 年 12 月查找 <a href='https://url.spec.whatwg.org/#host-registrable-domain' target='_blank'>spec</a> 時，發現 registrable domain 敘述有改。但意思應該不變，此處引用和書中相同
+- <Link to='30' class='border-none! text-#2f96ad'>[3]</Link>：2024 年 12 月查找 <a href='https://html.spec.whatwg.org/multipage/browsers.html#origin' target='_blank'>spec</a> 時，發現 same origin-domain 演算法有改。但意思應該不變，此處引用的是 2024 年 12 月擷取的 spec 敘述
 
 ---
 
