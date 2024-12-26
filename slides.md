@@ -463,6 +463,7 @@ domain 結構由右至左來看
   | 是否考慮 port | 是 | 否 |
   | 是否考慮 host | 是 | 不完全是（只看 registrable domain） |
 
+
 ---
 
 # 神奇的 document.domain
@@ -475,50 +476,17 @@ domain 結構由右至左來看
     <p>HTML <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin" target="_blank">spec</a>: "Origins can be shared, e.g., among multiple Document objects. Furthermore, origins are generally immutable. Only the domain of a tuple origin can be changed, and only through the document.domain API."</p> 
   </div>
 
-  - origin 除 domain 屬性外，其他都不可變(immutable)
+  - origin 除 domain 屬性外，其他都不可變（immutable）
     - domain 屬性可用 `document.domain` 改變
 
 ---
 
 # 神奇的 document.domain
 
-- `document.domain` 的 same site 變 same origin 之術
-  - 書中 demo 用 `document.domain` 讓 same site 頁面（`alice.example.com` 和 `bob.example.com`）變 same origin
-    - 原先因為不是 same origin，無法存取對方 DOM
-    - 兩頁面 `document.domain` 設為相同的 `example.com` 後，變成 same origin，可互相存取 DOM
-
----
-
-# 神奇的 document.domain
-
-- cross origin 變成 same origin 有很多限制
-  - 只有 same site 網站可以
-  - 設置時會檢查
-    <div class='quote'>
-      <p>The domain setter steps are:</p> 
-      <p>1. If this's browsing context is null, then throw a "SecurityError" DOMException.</p>
-      <p>2. If this's active sandboxing flag set has its sandboxed document.domain browsing context flag set, then throw a "SecurityError" DOMException.</p>
-      <p>3. Let effectiveDomain be this's origin's effective domain.</p>
-      <p>4. If effectiveDomain is null, then throw a "SecurityError" DOMException.</p>
-      <p>5. If the given value is not a registrable domain suffix of and is not equal to effectiveDomain, then throw a "SecurityError" DOMException.</p>
-      <p>6. If the surrounding agent's agent cluster's is origin-keyed is true, then return.</p>
-      <p>7. Set this's origin's domain to the result of parsing the given value.</p>
-    </div>
-
----
-
-# 神奇的 document.domain
-
-- 兩頁面改 `document.domain` 後變 same origin 的原因
-
-  - 嚴格來說改 `document.domain` 是讓兩網站變成 same origin-domain
-  - 某些檢查看 same origin-domain，非 same origin <span class='text-sm opacity-80'>(<a href='https://html.spec.whatwg.org/multipage/document-sequences.html#concept-bcc-content-document' target='_blank'>ref</a>)</span>
-    <div class='quote'>
-      <p>🖊️ If document's origin and container's node document's origin are not same origin-domain, then return null.</p> 
-    </div>
-
-    - 如果 document 和裡面的 node document（iframe）不是 same origin-domain，就回傳 null
-    - 如果是 same origin-domain，就可存取到 iframe
+- `document.domain` 可用於放寬 same origin 限制
+  - 允許 same site 頁面變 same origin，進而能互相存取 DOM
+  - 如：`alice.example.com` 和 `bob.example.com` 的 `document.domain` 設為 `example.com` 後，變成 same origin
+    - -> 嚴格來說是變 same origin-domain，某些檢查看 same origin-domain，非 same origin <span class='text-sm opacity-80'>(<a href='https://html.spec.whatwg.org/multipage/document-sequences.html#concept-bcc-content-document' target='_blank'>ref</a>)</span>
 
 ---
 
@@ -540,7 +508,6 @@ domain 結構由右至左來看
     - scheme 和 domain 都相同，且 <span v-mark.red='1'>domain 不是 null</span>
     - 兩個是 same origin，且 <span v-mark.red='2'>domain 都是 null</span> <br>
       <span class='text-sm opacity-80'>(domain 指的是 tuple origin 的 domain 屬性)</span>
-  - 怎麼改 tuple origin 的 domain 屬性？ `document.domain`
 
 <!-- 觀察
 兩網頁都有設置 domain 或都沒有，才有可能是 same origin-domain
@@ -554,10 +521,8 @@ domain 結構由右至左來看
 
 # document.domain 的淡出及退場
 
-- `document.domain` 放寬 Same Origin 限制存在已久
-  - 早期用途：存取 same site 但 cross origin 頁面
-  - 保留原因：相容性
-  - 可能問題：subdomain 有 XSS 漏洞時，影響範圍可擴大
+- `document.domain` 過去用來放寬 same origin 限制
+  - 問題：subdomain 有 XSS 漏洞時，影響範圍可擴大
 - Chrome 對 `document.domain` 的措施
   - 2022 年<a href='https://developer.chrome.com/blog/immutable-document-domain/' target='_blank'>指出</a>最快從 Chrome 101 版開始，停止支援更改 `document.domain`
   - 2023 年<a href='https://developer.chrome.com/blog/document-domain-setter-deprecation' target='_blank'>宣布</a> `document.domain` 的淘汰將於 Chrome 115 生效
@@ -915,9 +880,6 @@ app.use((req, res, next) => {
 - COEP（Cross-Origin-Embedder-Policy）
 - COOP（Cross-Origin-Opener-Policy）
 
-<div class='opacity-60 mt-40 text-right'>
-  在那之前，先來看看 Meltdown 與 Spectre...
-</div>
 
 ---
 
@@ -928,36 +890,6 @@ app.use((req, res, next) => {
   - Meltdown: rogue data cache load (CVE-2017-5754)
 - 攻擊嚴重性：CPU 問題，難修復
 - 漏洞影響：促進瀏覽器與跨來源政策的演進
-
----
-
-# 超級簡化版 Spectre 攻擊解釋
-
-此為方便理解的簡化版，和原始攻擊有落差，但核心概念相似
-
-- 假設一段程式碼（C 語言）
-  - 宣告兩陣列 arr1（長度 16）和 arr2（長度 256）
-  - 函式 `run(x)` 判斷 `x < array1_size`，若符合則執行 `array2[array1[x]]`
-  - 沒超出陣列範圍，理論上沒問題
-
-<div class='pl-6'>
-
-```c
-uint8_t arr1[16] = {1, 2, 3};
-uint8_t arr2[256];
-unsigned int array1_size = 16;
-
-void run(size_t x) {
-  if(x < array1_size) {
-    uint8_t y = array2[array1[x]];
-  }
-}
-
-size_t x = 1;
-run(x);
-```
-
-</div>
 
 ---
 
@@ -1001,18 +933,19 @@ run(x);
 
 # 超級簡化版 Spectre 攻擊解釋
 
-- 再看一次程式碼，可能會有什麼問題？
-  - 跑多次 `run(10)` 後，branch prediction 預測下次也會滿足條件，提前執行 if 內程式碼
+此為方便理解的簡化版，和原始攻擊有落差，但核心概念相似
+
+- 利用 CPU 機制，可讀取不該存取的記憶體 <span class='text-xs opacity-80'>流程如下</span>
+  - 跑多次 `run(10)` 後，branch prediction 預測下次也會滿足條件，提前執行 `if` 內程式碼
   - 當 `x` 設為 100 時，預測會執行：`uint8_t y = array2[array1[100]];`
-    - 若 `array1[100]` 是 38，則執行 `y = array2[38]`
-    - `array2[38]` 被放入 CPU cache
+    - 若 `array1[100]` 是 38，則執行 `y = array2[38]`，`array2[38]` 被放入 CPU cache
   - 實際執行發現條件不符，丟掉執行結果
-  - 此時用 timing attack 讀取 array2 每個元素並計算時間，發現 `array2[38]` 讀取時間最短，回推 `array1[100]` 內容是 38 <br>
+  - 讀取 `array2` 每個元素，發現 `array2[38]` 讀取時間最短，回推 `array1[100]` 是 38 <br>
     -> 存取到其他不該存取到的記憶體
 
 <div class='pl-6'>
 
-```c {*}{maxHeight:'100px'}
+```c {*}{maxHeight:'150px'}
 uint8_t arr1[16] = {1, 2, 3};
 uint8_t arr2[256];
 unsigned int array1_size = 16;
@@ -1049,17 +982,14 @@ run(x);
 阻擋不合理的跨來源資源載入
 
 - 防禦 Spectre：避免其他網站資料出現在同一 process 下
-- 其他網站的資料會如何出現？跨來源存取資源的方式如：
+- 跨來源存取資源方式
   - `fetch` 或 `xhr`
     - 已被 CORS 控管
-    - response 在 network 相關 process，不是網站本身 process，Spectre 拿不到
+    - response 在 network process，非網站本身 process，Spectre 拿不到
   - `<img>` 或 `<script>`
     - 可載入機密資料如 `<img src="https://bank.com/secret.json">`
-    - 限制：無法用 JavaScript 讀取
-    - Chrome 運作機制
-      - 下載時無法確定是否為符合標籤的檔案類型
-      - 交由 render process 處理後發現格式錯誤才觸發載入錯誤
-    - 問題：Spectre 只要在同一 process 就可存取，即使進入 render process 也能讀取
+    - Chrome 下載時無法確定是否為符合標籤的檔案類型，交由 render process 後發現格式錯誤才觸發載入錯誤
+      - 🔺 進入 render process 也可被 Spectre 存取
 
 ---
 
@@ -1074,17 +1004,9 @@ run(x);
   - 用 `<script>` 載入 HTML
 - CORB 主要保護的資料類型：HTML、XML 跟 JSON
   - Chrome 根據內容探測（<a href='https://mimesniff.spec.whatwg.org/' target='_blank'>sniffing</a>）檔案類型，決定是否套用 CORB
-    - 若確定伺服器給的 content type 正確，可傳 response header `X-Content-Type-Options: nosniff`，Chrome 會直接用給定的 content type
+    - 可傳 `X-Content-Type-Options: nosniff` 來確保 Chrome 使用給定的 content type
+- Chrome 已預設 CORB，會自動阻擋不合理的跨來源資源載入
 
----
-
-# CORB（Cross-Origin Read Blocking）
-
-阻擋不合理的跨來源資源載入
-
-- CORB 瀏覽器支援度
-  - Chrome：已預設，會自動阻擋不合理的跨來源資源載入
-  - Firefox：目前沒找到有預設 CORB，但有查到會有 MIME 類型檢查 <span class='text-sm opacity-80'>(<a href='https://blog.mozilla.org/security/2016/08/26/mitigating-mime-confusion-attacks-in-firefox/' target='_blank'>ref</a>)</span>
 
 ---
 
@@ -1099,12 +1021,9 @@ run(x);
   - `cross-origin`：所有跨來源都可載入
     - 和沒設差不多，只在 COEP 是 `require-corp` 時有差
 - CORP 使用方式
-  - 主流瀏覽器都已支援，可手動傳入
-  - server 回傳時設 response header `Cross-Origin-Resource-Policy`
-
 <div class='pl-6'>
 
-```js {*}{maxHeight:'80px'}
+```js 
 app.use((req, res, next) => {
   res.header('Cross-Origin-Resource-Policy', 'same-origin');
   next();
@@ -1140,7 +1059,7 @@ app.use((req, res, next) => {
 - 如何「不讓攻擊者有機會執行 Spectre 攻擊」？ <span class='text-sm opacity-80'>Spectre 攻擊後，瀏覽器的調整</span>
   - 降低 `performance.now` 精準度
   - 停用 `SharedArrayBuffer`
-    - `SharedArrayBuffer`：讓 document 的 JavaScript 跟 web worker 共用同記憶體，共享資料
+    - [`SharedArrayBuffer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer)：讓 document 的 JavaScript 跟 web worker 共用同記憶體，共享資料
 - 如何「就算執行攻擊，也拿不到想要的資訊」？
   - 不讓惡意網站拿到跨來源網站的資訊，如：CORB、Site Isolation
 
@@ -1362,7 +1281,7 @@ routeAlias: additionalInfo
 
 - <Link to='17' class='border-none! text-#2f96ad'>[1]</Link>：2024 年 12 月查找 <a href='https://html.spec.whatwg.org/multipage/browsers.html#sites' target='_blank'>spec</a> 時，發現 same site 演算法敘述有改。但意思應該不變，此處引用和書中相同
 - <Link to='20' class='border-none! text-#2f96ad'>[2]</Link>：2024 年 12 月查找 <a href='https://url.spec.whatwg.org/#host-registrable-domain' target='_blank'>spec</a> 時，發現 registrable domain 敘述有改。但意思應該不變，此處引用和書中相同
-- <Link to='30' class='border-none! text-#2f96ad'>[3]</Link>：2024 年 12 月查找 <a href='https://html.spec.whatwg.org/multipage/browsers.html#origin' target='_blank'>spec</a> 時，發現 same origin-domain 演算法有改。但意思應該不變，此處引用的是 2024 年 12 月擷取的 spec 敘述
+- <Link to='28' class='border-none! text-#2f96ad'>[3]</Link>：2024 年 12 月查找 <a href='https://html.spec.whatwg.org/multipage/browsers.html#origin' target='_blank'>spec</a> 時，發現 same origin-domain 演算法有改。但意思應該不變，此處引用的是 2024 年 12 月擷取的 spec 敘述
 
 ---
 
