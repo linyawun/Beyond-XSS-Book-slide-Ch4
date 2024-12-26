@@ -1284,6 +1284,18 @@ routeAlias: additionalInfo
 
 ```yaml
 layout: center
+```
+
+# 下回預告：ch4-4 ~ 4-7 
+
+- 日期：1/9
+- 導讀人：Yo0
+- 筆記工：Wanye
+
+---
+
+```yaml
+layout: center
 glowSeed: 10
 ```
 
