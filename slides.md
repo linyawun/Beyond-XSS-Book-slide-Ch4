@@ -35,7 +35,6 @@ fonts:
 <p>2024.12.26 @Tech-Book-Community</p>
 </div>
 
-
 <style>
   h1{
     @apply font-bold
@@ -460,7 +459,6 @@ domain 結構由右至左來看
   | 是否考慮 port | 是 | 否 |
   | 是否考慮 host | 是 | 不完全是（只看 registrable domain） |
 
-
 ---
 
 # 神奇的 document.domain
@@ -877,7 +875,6 @@ app.use((req, res, next) => {
 - COEP（Cross-Origin-Embedder-Policy）
 - COOP（Cross-Origin-Opener-Policy）
 
-
 ---
 
 # 嚴重的安全漏洞：Meltdown 與 Spectre
@@ -1004,7 +1001,6 @@ run(x);
     - 可傳 `X-Content-Type-Options: nosniff` 來確保 Chrome 使用給定的 content type
 - Chrome 已預設 CORB，會自動阻擋不合理的跨來源資源載入
 
-
 ---
 
 # CORP（Cross-Origin Resource Policy）
@@ -1020,7 +1016,7 @@ run(x);
 - CORP 使用方式
 <div class='pl-6'>
 
-```js 
+```js
 app.use((req, res, next) => {
   res.header('Cross-Origin-Resource-Policy', 'same-origin');
   next();
@@ -1092,7 +1088,7 @@ app.use((req, res, next) => {
 - COEP 可填入的值
   - `unsafe-none`：預設值，沒限制
   - `require-corp`：頁面上所有載入的資源，都必須有 CORP 或 CORS header 存在，且是合法的
-- 範例：想將網站 `a.example.com` 變成 cross-rogin isolated state
+- 範例：想將網站 `a.example.com` 變成 cross-origin isolated state
   - 幫網站加上 header `Cross-Origin-Embedder-Policy: require-corp`
   - 網頁引入資源 `<img src="http://b.example.com/logo.jpg">`
   - 提供資源的 b 傳送正確 header
@@ -1286,7 +1282,7 @@ routeAlias: additionalInfo
 layout: center
 ```
 
-# 下回預告：ch4-4 ~ 4-7 
+# 下回預告：ch4-4 ~ 4-7
 
 - 日期：1/9
 - 導讀人：Yo0
