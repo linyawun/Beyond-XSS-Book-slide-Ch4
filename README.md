@@ -5,7 +5,7 @@
 
 ## Installation
 The following will guide you on how to install this project on your computer.
-> Please first install [Node.js](https://nodejs.org/en/download). The recommended version of Node.js is `18.12.0` or above.
+> Please first install [Node.js](https://nodejs.org/en/download). This project requires Node.js `22.12.0` or above.
 ### Getting the Project
 ```bash
 git clone https://github.com/linyawun/Beyond-XSS-Book-slide-Ch4.git
